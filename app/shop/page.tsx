@@ -184,3 +184,4 @@ export default function ShopPage() {
     </div>
   );
 }
+"feat: build shop page"
