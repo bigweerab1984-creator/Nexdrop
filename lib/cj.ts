@@ -6,11 +6,11 @@ if (!apiKey) {
   throw new Error("CJ_API_KEY is not set");
 }
 
-export interface CjProduct {
+export interface CjProductDetail {
   pid: string;
-  productName: string;
+  productNameEn: string;
   sellPrice: number;
-  productImage: string;
+  productImageSet: string[];
 }
 
 export interface CjOrderItem {
@@ -32,7 +32,13 @@ export interface CjShippingAddress {
   phone: string;
 }
 
-export async function getCjProduct(pid: string): Promise<CjProduct> {
+const MARKUP_MULTIPLIER = 1.4;
+
+export function applyMarkup(cjPrice: number): number {
+  return Math.round(cjPrice * MARKUP_MULTIPLIER * 100) / 100;
+}
+
+export async function getProductDetail(pid: string): Promise<CjProductDetail> {
   const res = await fetch(`${CJ_API_BASE}/product/query?pid=${pid}`, {
     headers: { "CJ-Access-Token": apiKey! },
   });
@@ -46,9 +52,13 @@ export async function getCjProduct(pid: string): Promise<CjProduct> {
 
   return {
     pid: product.pid,
-    productName: product.productNameEn,
+    productNameEn: product.productNameEn,
     sellPrice: Number(product.sellPrice),
-    productImage: product.productImage,
+    productImageSet: Array.isArray(product.productImageSet)
+      ? product.productImageSet
+      : product.productImage
+      ? [product.productImage]
+      : [],
   };
 }
 
