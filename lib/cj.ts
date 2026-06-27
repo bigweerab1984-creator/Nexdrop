@@ -11,6 +11,8 @@ export interface CjProductDetail {
   productNameEn: string;
   sellPrice: number;
   productImageSet: string[];
+  productImage: string;
+  categoryName: string;
 }
 
 export interface CjOrderItem {
@@ -65,6 +67,8 @@ export async function searchProducts(opts?: {
     productNameEn: p.nameEn,
     sellPrice: Number(p.sellPrice),
     productImageSet: p.bigImage ? [p.bigImage] : [],
+    productImage: p.bigImage ?? "",
+    categoryName: p.threeCategoryName ?? p.twoCategoryName ?? p.oneCategoryName ?? "",
   }));
 
   return {
@@ -85,15 +89,19 @@ export async function getProductDetail(pid: string): Promise<CjProductDetail> {
   const data = await res.json();
   const product = data.data;
 
+  const imageSet = Array.isArray(product.productImageSet)
+    ? product.productImageSet
+    : product.productImage
+    ? [product.productImage]
+    : [];
+
   return {
     pid: product.pid,
     productNameEn: product.productNameEn,
     sellPrice: Number(product.sellPrice),
-    productImageSet: Array.isArray(product.productImageSet)
-      ? product.productImageSet
-      : product.productImage
-      ? [product.productImage]
-      : [],
+    productImageSet: imageSet,
+    productImage: imageSet[0] ?? "",
+    categoryName: product.categoryName ?? "",
   };
 }
 
