@@ -38,6 +38,36 @@ export function applyMarkup(cjPrice: number): number {
   return Math.round(cjPrice * MARKUP_MULTIPLIER * 100) / 100;
 }
 
+export async function searchProducts(opts?: {
+  keyword?: string;
+  pageNum?: number;
+  pageSize?: number;
+}): Promise<CjProductDetail[]> {
+  const params = new URLSearchParams();
+  if (opts?.keyword) params.set("productNameEn", opts.keyword);
+  params.set("pageNum", String(opts?.pageNum ?? 1));
+  params.set("pageSize", String(opts?.pageSize ?? 20));
+
+  const res = await fetch(`${CJ_API_BASE}/product/list?${params.toString()}`, {
+    headers: { "CJ-Access-Token": apiKey! },
+  });
+
+  if (!res.ok) {
+    throw new Error(`CJ product search failed: ${res.status} ${await res.text()}`);
+  }
+
+  const data = await res.json();
+  const pages = data.data?.content ?? [];
+  const rawProducts = pages.flatMap((page: any) => page.productList ?? []);
+
+  return rawProducts.map((p: any) => ({
+    pid: p.id,
+    productNameEn: p.nameEn,
+    sellPrice: Number(p.sellPrice),
+    productImageSet: p.bigImage ? [p.bigImage] : [],
+  }));
+}
+
 export async function getProductDetail(pid: string): Promise<CjProductDetail> {
   const res = await fetch(`${CJ_API_BASE}/product/query?pid=${pid}`, {
     headers: { "CJ-Access-Token": apiKey! },
