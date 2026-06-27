@@ -6,6 +6,44 @@ if (!apiKey) {
   throw new Error("CJ_API_KEY is not set");
 }
 
+let cachedToken: { accessToken: string; expiresAt: number } | null = null;
+
+async function getAccessToken(): Promise<string> {
+  const now = Date.now();
+
+  if (cachedToken && cachedToken.expiresAt - now > 60 * 60 * 1000) {
+    return cachedToken.accessToken;
+  }
+
+  const res = await fetch(`${CJ_API_BASE}/authentication/getAccessToken`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ apiKey }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`CJ authentication failed: ${res.status} ${await res.text()}`);
+  }
+
+  const data = await res.json();
+  if (!data.result || !data.data?.accessToken) {
+    throw new Error(`CJ authentication did not return a token: ${JSON.stringify(data)}`);
+  }
+
+  const accessToken: string = data.data.accessToken;
+  const expiresAt = data.data.accessTokenExpiryDate
+    ? new Date(data.data.accessTokenExpiryDate).getTime()
+    : now + 14 * 24 * 60 * 60 * 1000;
+
+  cachedToken = { accessToken, expiresAt };
+  return accessToken;
+}
+
+async function cjAuthHeaders(): Promise<Record<string, string>> {
+  const token = await getAccessToken();
+  return { "CJ-Access-Token": token };
+}
+
 export interface CjProductDetail {
   pid: string;
   productNameEn: string;
@@ -51,7 +89,7 @@ export async function searchProducts(opts?: {
   params.set("pageSize", String(opts?.pageSize ?? 20));
 
   const res = await fetch(`${CJ_API_BASE}/product/list?${params.toString()}`, {
-    headers: { "CJ-Access-Token": apiKey! },
+    headers: await cjAuthHeaders(),
   });
 
   if (!res.ok) {
@@ -79,7 +117,7 @@ export async function searchProducts(opts?: {
 
 export async function getProductDetail(pid: string): Promise<CjProductDetail> {
   const res = await fetch(`${CJ_API_BASE}/product/query?pid=${pid}`, {
-    headers: { "CJ-Access-Token": apiKey! },
+    headers: await cjAuthHeaders(),
   });
 
   if (!res.ok) {
