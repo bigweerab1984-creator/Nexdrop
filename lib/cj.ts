@@ -42,7 +42,7 @@ export async function searchProducts(opts?: {
   keyword?: string;
   pageNum?: number;
   pageSize?: number;
-}): Promise<CjProductDetail[]> {
+}): Promise<{ products: CjProductDetail[]; total: number }> {
   const params = new URLSearchParams();
   if (opts?.keyword) params.set("productNameEn", opts.keyword);
   params.set("pageNum", String(opts?.pageNum ?? 1));
@@ -60,12 +60,17 @@ export async function searchProducts(opts?: {
   const pages = data.data?.content ?? [];
   const rawProducts = pages.flatMap((page: any) => page.productList ?? []);
 
-  return rawProducts.map((p: any) => ({
+  const products: CjProductDetail[] = rawProducts.map((p: any) => ({
     pid: p.id,
     productNameEn: p.nameEn,
     sellPrice: Number(p.sellPrice),
     productImageSet: p.bigImage ? [p.bigImage] : [],
   }));
+
+  return {
+    products,
+    total: Number(data.data?.totalRecords ?? products.length),
+  };
 }
 
 export async function getProductDetail(pid: string): Promise<CjProductDetail> {
