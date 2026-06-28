@@ -162,26 +162,20 @@ export async function searchProducts(opts?: {
 
     const data = await res.json();
 
-    console.log(
-      "CJ product/list raw response (debug):",
-      JSON.stringify(data).slice(0, 2000)
-    );
-
-    const pages = data.data?.content ?? [];
-    const rawProducts = pages.flatMap((page: any) => page.productList ?? []);
+    const rawProducts = data.data?.list ?? [];
 
     const products: CjProductDetail[] = rawProducts.map((p: any) => ({
-      pid: p.id,
-      productNameEn: p.nameEn,
+      pid: p.pid,
+      productNameEn: p.productNameEn,
       sellPrice: Number(p.sellPrice),
-      productImageSet: p.bigImage ? [p.bigImage] : [],
-      productImage: p.bigImage ?? "",
-      categoryName: p.threeCategoryName ?? p.twoCategoryName ?? p.oneCategoryName ?? "",
+      productImageSet: p.productImage ? [p.productImage] : [],
+      productImage: p.productImage ?? "",
+      categoryName: p.categoryName ?? "",
     }));
 
     return {
       products,
-      total: Number(data.data?.totalRecords ?? products.length),
+      total: Number(data.data?.total ?? products.length),
     };
   }
 
