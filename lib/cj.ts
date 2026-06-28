@@ -6,13 +6,50 @@ if (!apiKey) {
   throw new Error("CJ_API_KEY is not set");
 }
 
-let cachedToken: { accessToken: string; expiresAt: number } | null = null;
+const REDIS_TOKEN_KEY = "cj:access_token";
+
+let inMemoryToken: { accessToken: string; expiresAt: number } | null = null;
+
+let redisClient: import("redis").RedisClientType | null = null;
+
+async function getRedisClient() {
+  if (redisClient) return redisClient;
+
+  const redisUrl = process.env.REDIS_URL;
+  if (!redisUrl) {
+    return null;
+  }
+
+  const { createClient } = await import("redis");
+  const client = createClient({ url: redisUrl });
+  await client.connect();
+  redisClient = client as import("redis").RedisClientType;
+  return redisClient;
+}
 
 async function getAccessToken(): Promise<string> {
   const now = Date.now();
+  const bufferMs = 60 * 60 * 1000;
 
-  if (cachedToken && cachedToken.expiresAt - now > 60 * 60 * 1000) {
-    return cachedToken.accessToken;
+  if (inMemoryToken && inMemoryToken.expiresAt - now > bufferMs) {
+    return inMemoryToken.accessToken;
+  }
+
+  const client = await getRedisClient();
+
+  if (client) {
+    try {
+      const cached = await client.get(REDIS_TOKEN_KEY);
+      if (cached) {
+        const parsed = JSON.parse(cached) as { accessToken: string; expiresAt: number };
+        if (parsed.expiresAt - now > bufferMs) {
+          inMemoryToken = parsed;
+          return parsed.accessToken;
+        }
+      }
+    } catch (err) {
+      console.error("CJ token Redis read failed, falling back to fresh auth:", err);
+    }
   }
 
   const res = await fetch(`${CJ_API_BASE}/authentication/getAccessToken`, {
@@ -35,7 +72,18 @@ async function getAccessToken(): Promise<string> {
     ? new Date(data.data.accessTokenExpiryDate).getTime()
     : now + 14 * 24 * 60 * 60 * 1000;
 
-  cachedToken = { accessToken, expiresAt };
+  const tokenRecord = { accessToken, expiresAt };
+  inMemoryToken = tokenRecord;
+
+  if (client) {
+    try {
+      const ttlSeconds = Math.max(60, Math.floor((expiresAt - now) / 1000) + 60);
+      await client.set(REDIS_TOKEN_KEY, JSON.stringify(tokenRecord), { EX: ttlSeconds });
+    } catch (err) {
+      console.error("CJ token Redis write failed:", err);
+    }
+  }
+
   return accessToken;
 }
 
