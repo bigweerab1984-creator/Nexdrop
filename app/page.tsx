@@ -2,7 +2,7 @@
 // Landing page — replaces the old redirect-to-/shop behavior.
 // Bold, warm-toned storefront intro with a trust-building reviews section.
 // Fonts (Space Grotesk for display, Inter for body, Space Mono for labels)
-// are loaded via <link> tags in app/layout.tsx — see that file.
+// are loaded via link tags in app/layout.tsx, see that file.
 
 export default function Home() {
   const reviews = [
@@ -210,3 +210,83 @@ export default function Home() {
               <div style={{ marginBottom: 10, letterSpacing: '2px' }}>
                 {'★'.repeat(r.rating)}
                 <span style={{ color: 'rgba(26,26,46,0.15)' }}>
+                  {'★'.repeat(5 - r.rating)}
+                </span>
+              </div>
+              <p
+                style={{
+                  fontSize: 14.5,
+                  lineHeight: 1.55,
+                  color: '#1A1A2E',
+                  margin: '0 0 14px',
+                }}
+              >
+                "{r.text}"
+              </p>
+              <div
+                style={{
+                  fontFamily: "'Space Mono', monospace",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: '#FF4D6D',
+                }}
+              >
+                — {r.name}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <p
+          style={{
+            textAlign: 'center',
+            fontSize: 12,
+            opacity: 0.4,
+            marginTop: 32,
+            fontStyle: 'italic',
+          }}
+        >
+          Sample reviews shown while we build up our first real customer
+          feedback.
+        </p>
+      </section>
+
+      {/* ---------- FOOTER CTA ---------- */}
+      <section
+        style={{
+          background: '#1A1A2E',
+          color: '#FFF8EE',
+          padding: '64px 24px',
+          textAlign: 'center',
+        }}
+      >
+        <h2
+          style={{
+            fontFamily: "'Space Grotesk', Inter, sans-serif",
+            fontWeight: 800,
+            fontSize: 'clamp(26px, 5vw, 36px)',
+            marginBottom: 16,
+          }}
+        >
+          Ready to dig in?
+        </h2>
+        <a
+          href="/shop"
+          style={{
+            display: 'inline-block',
+            background: '#06D6A0',
+            color: '#1A1A2E',
+            fontWeight: 700,
+            fontSize: 17,
+            padding: '16px 36px',
+            borderRadius: 10,
+            textDecoration: 'none',
+            marginTop: 8,
+          }}
+        >
+          See what's new →
+        </a>
+      </section>
+    </div>
+  );
+}
