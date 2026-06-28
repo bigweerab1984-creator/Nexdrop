@@ -126,6 +126,10 @@ export function applyMarkup(cjPrice: number): number {
   return Math.round(cjPrice * MARKUP_MULTIPLIER * 100) / 100;
 }
 
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export async function searchProducts(opts?: {
   keyword?: string;
   pageNum?: number;
@@ -136,31 +140,46 @@ export async function searchProducts(opts?: {
   params.set("pageNum", String(opts?.pageNum ?? 1));
   params.set("pageSize", String(opts?.pageSize ?? 20));
 
-  const res = await fetch(`${CJ_API_BASE}/product/list?${params.toString()}`, {
-    headers: await cjAuthHeaders(),
-  });
+  const url = `${CJ_API_BASE}/product/list?${params.toString()}`;
+  const maxAttempts = 3;
+  let lastErrorText = "";
 
-  if (!res.ok) {
-    throw new Error(`CJ product search failed: ${res.status} ${await res.text()}`);
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const res = await fetch(url, { headers: await cjAuthHeaders() });
+
+    if (res.status === 429) {
+      lastErrorText = await res.text();
+      if (attempt < maxAttempts) {
+        await sleep(attempt === 1 ? 1200 : 2000);
+        continue;
+      }
+      throw new Error(`CJ product search rate-limited after ${maxAttempts} attempts: ${lastErrorText}`);
+    }
+
+    if (!res.ok) {
+      throw new Error(`CJ product search failed: ${res.status} ${await res.text()}`);
+    }
+
+    const data = await res.json();
+    const pages = data.data?.content ?? [];
+    const rawProducts = pages.flatMap((page: any) => page.productList ?? []);
+
+    const products: CjProductDetail[] = rawProducts.map((p: any) => ({
+      pid: p.id,
+      productNameEn: p.nameEn,
+      sellPrice: Number(p.sellPrice),
+      productImageSet: p.bigImage ? [p.bigImage] : [],
+      productImage: p.bigImage ?? "",
+      categoryName: p.threeCategoryName ?? p.twoCategoryName ?? p.oneCategoryName ?? "",
+    }));
+
+    return {
+      products,
+      total: Number(data.data?.totalRecords ?? products.length),
+    };
   }
 
-  const data = await res.json();
-  const pages = data.data?.content ?? [];
-  const rawProducts = pages.flatMap((page: any) => page.productList ?? []);
-
-  const products: CjProductDetail[] = rawProducts.map((p: any) => ({
-    pid: p.id,
-    productNameEn: p.nameEn,
-    sellPrice: Number(p.sellPrice),
-    productImageSet: p.bigImage ? [p.bigImage] : [],
-    productImage: p.bigImage ?? "",
-    categoryName: p.threeCategoryName ?? p.twoCategoryName ?? p.oneCategoryName ?? "",
-  }));
-
-  return {
-    products,
-    total: Number(data.data?.totalRecords ?? products.length),
-  };
+  throw new Error(`CJ product search failed after retries: ${lastErrorText}`);
 }
 
 export async function getProductDetail(pid: string): Promise<CjProductDetail> {
