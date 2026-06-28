@@ -161,6 +161,12 @@ export async function searchProducts(opts?: {
     }
 
     const data = await res.json();
+
+    console.log(
+      "CJ product/list raw response (debug):",
+      JSON.stringify(data).slice(0, 2000)
+    );
+
     const pages = data.data?.content ?? [];
     const rawProducts = pages.flatMap((page: any) => page.productList ?? []);
 
