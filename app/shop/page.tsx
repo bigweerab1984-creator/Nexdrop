@@ -128,7 +128,7 @@ export default function ShopPage() {
               <div style={{ padding: 12 }}>
                 <div style={{ fontSize: 13, marginBottom: 6 }}>{p.name}</div>
                 <div style={{ color: 'var(--accent2)', fontWeight: 700, marginBottom: 8 }}>
-                  ${p.price.toFixed(2)}
+                  ${Number.isFinite(p.price) ? p.price.toFixed(2) : '—'}
                 </div>
                 <button
                   onClick={() => addToCart(p)}
@@ -184,4 +184,3 @@ export default function ShopPage() {
     </div>
   );
 }
-"feat: build shop page"
