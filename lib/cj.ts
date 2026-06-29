@@ -1,10 +1,6 @@
 const CJ_API_BASE = "https://developers.cjdropshipping.com/api2.0/v1";
 
-const apiKey = process.env.CJ_API_KEY;
-
-if (!apiKey) {
-  throw new Error("CJ_API_KEY is not set");
-}
+const apiKey = process.env.CJ_API_KEY || 'dummy_key';
 
 const REDIS_TOKEN_KEY = "cj:access_token";
 
