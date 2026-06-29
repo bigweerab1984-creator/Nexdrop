@@ -1,30 +1,33 @@
 'use client';
 
-import { Canvas, useFrame } from '@react-three/fiber';
-import { useRef, Suspense } from 'react';
-import { Mesh } from 'three';
+import { Canvas } from '@react-three/fiber';
+import { Suspense } from 'react';
 import { Float, MeshDistortMaterial, Sphere } from '@react-three/drei';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import RotatingProducts from '@/components/RotatingProducts';
 
 function Hero3D() {
   return (
-    <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: -1, opacity: 0.6 }}>
-      <Canvas>
+    <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: -1, opacity: 0.8 }}>
+      <Canvas camera={{ position: [0, 0, 10], fov: 45 }}>
         <ambientLight intensity={1} />
         <pointLight position={[10, 10, 10]} />
         <Suspense fallback={null}>
-          <Float speed={5} rotationIntensity={2} floatIntensity={2}>
-            <Sphere args={[1, 100, 200]} scale={2.4}>
-              <MeshDistortMaterial
-                color="#6c47ff"
-                attach="material"
-                distort={0.5}
-                speed={2}
-                roughness={0}
-              />
-            </Sphere>
-          </Float>
+          <group position={[0, 0, 0]}>
+            <Float speed={5} rotationIntensity={2} floatIntensity={2}>
+              <Sphere args={[1, 100, 200]} scale={2.4}>
+                <MeshDistortMaterial
+                  color="#6c47ff"
+                  attach="material"
+                  distort={0.5}
+                  speed={2}
+                  roughness={0}
+                />
+              </Sphere>
+            </Float>
+            <RotatingProducts />
+          </group>
         </Suspense>
       </Canvas>
     </div>
@@ -99,6 +102,7 @@ export default function Home() {
           alignItems: 'center',
           justifyContent: 'center',
           minHeight: '80vh',
+          background: 'transparent',
         }}
       >
         <Hero3D />
