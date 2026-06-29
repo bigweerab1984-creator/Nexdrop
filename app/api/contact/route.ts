@@ -53,4 +53,11 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// Minimal HTML escaping so form input
+function escapeHtml(unsafe: string) {
+  return unsafe
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}

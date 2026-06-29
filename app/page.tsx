@@ -1,8 +1,35 @@
-// app/page.tsx
-// Landing page — replaces the old redirect-to-/shop behavior.
-// Bold, warm-toned storefront intro with a trust-building reviews section.
-// Fonts (Space Grotesk for display, Inter for body, Space Mono for labels)
-// are loaded via link tags in app/layout.tsx, see that file.
+'use client';
+
+import { Canvas, useFrame } from '@react-three/fiber';
+import { useRef, Suspense } from 'react';
+import { Mesh } from 'three';
+import { Float, MeshDistortMaterial, Sphere } from '@react-three/drei';
+import { motion } from 'framer-motion';
+import Link from 'next/link';
+
+function Hero3D() {
+  return (
+    <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: -1, opacity: 0.6 }}>
+      <Canvas>
+        <ambientLight intensity={1} />
+        <pointLight position={[10, 10, 10]} />
+        <Suspense fallback={null}>
+          <Float speed={5} rotationIntensity={2} floatIntensity={2}>
+            <Sphere args={[1, 100, 200]} scale={2.4}>
+              <MeshDistortMaterial
+                color="#6c47ff"
+                attach="material"
+                distort={0.5}
+                speed={2}
+                roughness={0}
+              />
+            </Sphere>
+          </Float>
+        </Suspense>
+      </Canvas>
+    </div>
+  );
+}
 
 export default function Home() {
   const reviews = [
@@ -32,14 +59,30 @@ export default function Home() {
     },
   ];
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+    },
+  };
+
   return (
     <div
       style={{
-        background: '#FFF8EE',
-        color: '#1A1A2E',
+        background: 'var(--bg)',
+        color: 'var(--text)',
         minHeight: '100vh',
-        fontFamily:
-          "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
         overflowX: 'hidden',
       }}
     >
@@ -47,85 +90,106 @@ export default function Home() {
       <section
         style={{
           position: 'relative',
-          padding: '72px 24px 56px',
-          maxWidth: 720,
+          padding: '120px 24px 80px',
+          maxWidth: 1200,
           margin: '0 auto',
           textAlign: 'center',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '80vh',
         }}
       >
-        <div
-          style={{
-            display: 'inline-block',
-            transform: 'rotate(-8deg)',
-            background: '#FFC857',
-            color: '#1A1A2E',
-            fontFamily: "'Space Mono', monospace",
-            fontSize: 13,
-            fontWeight: 700,
-            padding: '6px 14px',
-            borderRadius: 4,
-            marginBottom: 28,
-            boxShadow: '2px 3px 0 rgba(26,26,46,0.15)',
-            letterSpacing: '0.02em',
-          }}
-        >
-          NEW FINDS DAILY ✂
-        </div>
+        <Hero3D />
 
-        <h1
-          style={{
-            fontFamily: "'Space Grotesk', Inter, sans-serif",
-            fontWeight: 800,
-            fontSize: 'clamp(40px, 9vw, 64px)',
-            lineHeight: 1.04,
-            margin: '0 0 20px',
-            letterSpacing: '-0.02em',
-          }}
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={containerVariants}
         >
-          Good stuff.
-          <br />
-          <span style={{ color: '#FF4D6D' }}>Stupid good prices.</span>
-        </h1>
+          <motion.div
+            variants={itemVariants}
+            style={{
+              display: 'inline-block',
+              background: 'var(--accent)',
+              color: '#fff',
+              fontFamily: "'Space Mono', monospace",
+              fontSize: 13,
+              fontWeight: 700,
+              padding: '6px 14px',
+              borderRadius: 4,
+              marginBottom: 28,
+              boxShadow: '0 4px 14px rgba(108, 71, 255, 0.4)',
+              letterSpacing: '0.02em',
+            }}
+          >
+            NEW FINDS DAILY ✂
+          </motion.div>
 
-        <p
-          style={{
-            fontSize: 18,
-            lineHeight: 1.5,
-            color: '#1A1A2E',
-            opacity: 0.75,
-            maxWidth: 460,
-            margin: '0 auto 32px',
-          }}
-        >
-          NexDrop hunts down genuinely useful, slightly unexpected things —
-          and gets them to your door without the markup.
-        </p>
+          <motion.h1
+            variants={itemVariants}
+            style={{
+              fontFamily: "'Space Grotesk', Inter, sans-serif",
+              fontWeight: 800,
+              fontSize: 'clamp(40px, 9vw, 84px)',
+              lineHeight: 1,
+              margin: '0 0 24px',
+              letterSpacing: '-0.04em',
+              background: 'linear-gradient(to bottom, #fff, #888)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+            }}
+          >
+            Good stuff.
+            <br />
+            <span style={{ color: 'var(--accent2)', WebkitTextFillColor: 'initial' }}>Stupid good prices.</span>
+          </motion.h1>
 
-        <a
-          href="/shop"
-          style={{
-            display: 'inline-block',
-            background: '#FF4D6D',
-            color: '#FFF8EE',
-            fontWeight: 700,
-            fontSize: 17,
-            padding: '16px 36px',
-            borderRadius: 10,
-            textDecoration: 'none',
-            boxShadow: '0 6px 0 #C7384F',
-            transition: 'transform 0.15s ease, box-shadow 0.15s ease',
-          }}
-        >
-          Start browsing →
-        </a>
+          <motion.p
+            variants={itemVariants}
+            style={{
+              fontSize: 20,
+              lineHeight: 1.6,
+              color: 'var(--text)',
+              opacity: 0.7,
+              maxWidth: 600,
+              margin: '0 auto 40px',
+            }}
+          >
+            NexDrop hunts down genuinely useful, slightly unexpected things —
+            and gets them to your door without the markup.
+          </motion.p>
+
+          <motion.div variants={itemVariants}>
+            <Link
+              href="/shop"
+              style={{
+                display: 'inline-block',
+                background: 'var(--accent2)',
+                color: '#000',
+                fontWeight: 700,
+                fontSize: 18,
+                padding: '18px 48px',
+                borderRadius: 50,
+                textDecoration: 'none',
+                boxShadow: '0 8px 24px rgba(0, 229, 160, 0.3)',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              Start browsing &rarr;
+            </Link>
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* ---------- TRUST TICKER ---------- */}
       <div
         style={{
-          background: '#1A1A2E',
-          color: '#FFF8EE',
-          padding: '14px 0',
+          background: 'var(--surface)',
+          borderTop: '1px solid var(--border)',
+          borderBottom: '1px solid var(--border)',
+          padding: '20px 0',
           overflow: 'hidden',
           whiteSpace: 'nowrap',
           position: 'relative',
@@ -134,15 +198,14 @@ export default function Home() {
         <div
           style={{
             display: 'inline-flex',
-            gap: 48,
+            gap: 64,
             fontFamily: "'Space Mono', monospace",
-            fontSize: 13,
+            fontSize: 14,
             fontWeight: 700,
-            letterSpacing: '0.04em',
-            paddingLeft: 24,
+            letterSpacing: '0.08em',
           }}
         >
-          {Array(3)
+          {Array(5)
             .fill([
               '⚡ FAST SHIPPING',
               '🔒 SECURE CHECKOUT',
@@ -151,7 +214,7 @@ export default function Home() {
             ])
             .flat()
             .map((item, i) => (
-              <span key={i} style={{ color: '#06D6A0' }}>
+              <span key={i} style={{ color: 'var(--accent2)' }}>
                 {item}
               </span>
             ))}
@@ -161,8 +224,8 @@ export default function Home() {
       {/* ---------- REVIEWS ---------- */}
       <section
         style={{
-          padding: '64px 24px 80px',
-          maxWidth: 1000,
+          padding: '100px 24px',
+          maxWidth: 1200,
           margin: '0 auto',
         }}
       >
@@ -170,9 +233,10 @@ export default function Home() {
           style={{
             fontFamily: "'Space Grotesk', Inter, sans-serif",
             fontWeight: 800,
-            fontSize: 'clamp(28px, 5vw, 38px)',
+            fontSize: 'clamp(32px, 5vw, 48px)',
             textAlign: 'center',
-            marginBottom: 8,
+            marginBottom: 16,
+            letterSpacing: '-0.02em',
           }}
         >
           People keep coming back
@@ -180,112 +244,97 @@ export default function Home() {
         <p
           style={{
             textAlign: 'center',
-            opacity: 0.65,
-            fontSize: 15,
-            marginBottom: 48,
+            opacity: 0.6,
+            fontSize: 18,
+            marginBottom: 64,
           }}
         >
-          A few words from people who've actually ordered.
+          A few words from people who&apos;ve actually ordered.
         </p>
 
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))',
-            gap: 24,
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: 32,
           }}
         >
           {reviews.map((r, i) => (
-            <div
+            <motion.div
               key={i}
+              whileHover={{ y: -10, transition: { duration: 0.2 } }}
               style={{
-                background: '#FFFFFF',
-                border: '1px solid rgba(26,26,46,0.08)',
-                borderRadius: 14,
-                padding: '24px 22px',
-                transform: `rotate(${r.rotate}deg)`,
-                boxShadow: '0 4px 14px rgba(26,26,46,0.06)',
+                background: 'var(--surface)',
+                border: '1px solid var(--border)',
+                borderRadius: 20,
+                padding: '32px',
+                position: 'relative',
               }}
             >
-              <div style={{ marginBottom: 10, letterSpacing: '2px' }}>
+              <div style={{ marginBottom: 16, color: 'var(--accent2)', fontSize: 20 }}>
                 {'★'.repeat(r.rating)}
-                <span style={{ color: 'rgba(26,26,46,0.15)' }}>
-                  {'★'.repeat(5 - r.rating)}
-                </span>
               </div>
               <p
                 style={{
-                  fontSize: 14.5,
-                  lineHeight: 1.55,
-                  color: '#1A1A2E',
-                  margin: '0 0 14px',
+                  fontSize: 16,
+                  lineHeight: 1.6,
+                  color: 'var(--text)',
+                  marginBottom: 24,
                 }}
               >
-                "{r.text}"
+                &ldquo;{r.text}&rdquo;
               </p>
               <div
                 style={{
                   fontFamily: "'Space Mono', monospace",
-                  fontSize: 12,
+                  fontSize: 14,
                   fontWeight: 700,
-                  color: '#FF4D6D',
+                  color: 'var(--accent)',
                 }}
               >
-                — {r.name}
+                &mdash; {r.name}
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
-
-        <p
-          style={{
-            textAlign: 'center',
-            fontSize: 12,
-            opacity: 0.4,
-            marginTop: 32,
-            fontStyle: 'italic',
-          }}
-        >
-          Sample reviews shown while we build up our first real customer
-          feedback.
-        </p>
       </section>
 
       {/* ---------- FOOTER CTA ---------- */}
       <section
         style={{
-          background: '#1A1A2E',
-          color: '#FFF8EE',
-          padding: '64px 24px',
+          background: 'var(--surface)',
+          padding: '100px 24px',
           textAlign: 'center',
+          borderTop: '1px solid var(--border)',
         }}
       >
         <h2
           style={{
             fontFamily: "'Space Grotesk', Inter, sans-serif",
             fontWeight: 800,
-            fontSize: 'clamp(26px, 5vw, 36px)',
-            marginBottom: 16,
+            fontSize: 'clamp(32px, 5vw, 48px)',
+            marginBottom: 32,
+            letterSpacing: '-0.02em',
           }}
         >
           Ready to dig in?
         </h2>
-        <a
+        <Link
           href="/shop"
           style={{
             display: 'inline-block',
-            background: '#06D6A0',
-            color: '#1A1A2E',
+            background: 'var(--accent)',
+            color: '#fff',
             fontWeight: 700,
-            fontSize: 17,
-            padding: '16px 36px',
-            borderRadius: 10,
+            fontSize: 18,
+            padding: '18px 48px',
+            borderRadius: 50,
             textDecoration: 'none',
-            marginTop: 8,
+            boxShadow: '0 8px 24px rgba(108, 71, 255, 0.3)',
           }}
         >
-          See what's new →
-        </a>
+          See what&apos;s new &rarr;
+        </Link>
       </section>
     </div>
   );
