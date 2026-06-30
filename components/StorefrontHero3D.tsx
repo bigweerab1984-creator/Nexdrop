@@ -3,7 +3,8 @@
 import { Canvas, useFrame, useLoader } from '@react-three/fiber';
 import { useRef, Suspense, useState, useEffect } from 'react';
 import * as THREE from 'three';
-import { Float, PerspectiveCamera, Environment, ContactShadows, useTexture } from '@react-three/drei';
+import { Float, PerspectiveCamera, Environment, ContactShadows, useTexture, Html, Sparkles } from '@react-three/drei';
+import { motion, AnimatePresence } from 'framer-motion';
 
 function ProductSphere({ index, count, radius, speed, url, name }: { index: number, count: number, radius: number, speed: number, url: string, name: string }) {
   const meshRef = useRef<THREE.Mesh>(null!);
@@ -13,8 +14,10 @@ function ProductSphere({ index, count, radius, speed, url, name }: { index: numb
     document.body.style.cursor = hovered ? 'pointer' : 'auto';
   }, [hovered]);
 
-  const handleClick = () => {
-    window.location.href = `/shop?q=${encodeURIComponent(name)}`;
+  const handleClick = (e: any) => {
+    e.stopPropagation();
+    // Open Quick View instead of redirect
+    (window as any).showQuickView?.({ name, url });
   };
 
   return (
@@ -31,6 +34,26 @@ function ProductSphere({ index, count, radius, speed, url, name }: { index: numb
         <Suspense fallback={<meshStandardMaterial color="#222" metalness={0.8} roughness={0.2} />}>
           <ProductMaterial url={url} index={index} count={count} radius={radius} speed={speed} meshRef={meshRef} />
         </Suspense>
+
+        {hovered && (
+          <Html distanceFactor={10} position={[0, 1.5, 0]}>
+            <div style={{
+              background: 'rgba(0,0,0,0.8)',
+              color: 'white',
+              padding: '4px 12px',
+              borderRadius: '20px',
+              fontSize: '12px',
+              whiteSpace: 'nowrap',
+              pointerEvents: 'none',
+              border: '1px solid var(--accent)',
+              boxShadow: '0 0 10px var(--accent)',
+              fontFamily: 'inherit',
+              fontWeight: 600
+            }}>
+              {name}
+            </div>
+          </Html>
+        )}
       </mesh>
     </Float>
   );
@@ -85,13 +108,19 @@ function ProductMaterial({ url, index, count, radius, speed, meshRef }: any) {
 
 function Scene() {
   const [products, setProducts] = useState<any[]>([]);
+  const mouse = useRef(new THREE.Vector2());
 
   useEffect(() => {
+    const onMouseMove = (e: MouseEvent) => {
+      mouse.current.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mouse.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    };
+    window.addEventListener('mousemove', onMouseMove);
+
     fetch('/api/products')
       .then(res => res.json())
       .then(data => {
         const p = data.products || [];
-        // Fill up to 30 items
         const filled = [];
         for (let i = 0; i < 30; i++) {
           filled.push(p[i % p.length]);
@@ -99,25 +128,35 @@ function Scene() {
         setProducts(filled);
       })
       .catch(() => {});
+
+    return () => window.removeEventListener('mousemove', onMouseMove);
   }, []);
 
   return (
     <>
-      <ambientLight intensity={1.5} />
-      <spotLight position={[10, 15, 10]} angle={0.3} penumbra={1} intensity={10} castShadow />
-      <pointLight position={[-10, -10, -10]} intensity={5} color="#00f2ff" />
+      <ambientLight intensity={0.5} />
+      <spotLight position={[10, 15, 10]} angle={0.3} penumbra={1} intensity={20} castShadow color="#00f2ff" />
+      <pointLight position={[-10, -10, -10]} intensity={10} color="#ff00d4" />
+
+      <Sparkles count={100} scale={20} size={2} speed={0.4} color="#00f2ff" />
 
       {products.map((p, i) => (
         p && <ProductSphere key={i} index={i} count={products.length} radius={8 + (i % 3)} speed={0.2 + (i % 5) * 0.05} url={p.image} name={p.name} />
       ))}
 
-      <Environment preset="city" />
+      <Environment preset="night" />
       <ContactShadows position={[0, -4, 0]} opacity={0.4} scale={25} blur={2.5} far={10} />
     </>
   );
 }
 
 export default function StorefrontHero3D() {
+  const [quickView, setQuickView] = useState<any>(null);
+
+  useEffect(() => {
+    (window as any).showQuickView = setQuickView;
+  }, []);
+
   return (
     <div style={{
       position: 'absolute',
@@ -133,6 +172,66 @@ export default function StorefrontHero3D() {
         <PerspectiveCamera makeDefault position={[0, 4, 12]} fov={45} />
         <Scene />
       </Canvas>
+
+      <AnimatePresence>
+        {quickView && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              background: 'rgba(10, 12, 16, 0.95)',
+              border: '1px solid var(--accent)',
+              borderRadius: 24,
+              padding: 32,
+              zIndex: 1000,
+              width: 400,
+              textAlign: 'center',
+              backdropFilter: 'blur(20px)',
+              boxShadow: '0 20px 80px rgba(0, 242, 255, 0.2)'
+            }}
+          >
+            <img src={quickView.url} style={{ width: '100%', borderRadius: 12, marginBottom: 20 }} alt={quickView.name} />
+            <h2 style={{ fontSize: 24, fontWeight: 800, marginBottom: 8 }}>{quickView.name}</h2>
+            <p style={{ opacity: 0.6, marginBottom: 24 }}>Explore this premium item in our collection.</p>
+            <div style={{ display: 'flex', gap: 12 }}>
+              <button
+                onClick={() => window.location.href = `/shop?q=${encodeURIComponent(quickView.name)}`}
+                style={{
+                  flex: 1,
+                  background: 'var(--accent)',
+                  color: '#000',
+                  border: 'none',
+                  padding: '12px 0',
+                  borderRadius: 12,
+                  fontWeight: 800,
+                  cursor: 'pointer'
+                }}
+              >
+                Shop Now
+              </button>
+              <button
+                onClick={() => setQuickView(null)}
+                style={{
+                  flex: 1,
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid var(--border)',
+                  color: 'var(--text)',
+                  padding: '12px 0',
+                  borderRadius: 12,
+                  cursor: 'pointer'
+                }}
+              >
+                Close
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

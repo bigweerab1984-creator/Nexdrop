@@ -29,15 +29,21 @@ export async function retrieveContext(query: string): Promise<string> {
   try {
     if (!process.env.POSTGRES_URL) return "";
 
-    // Simple keyword search across memory
-    const keywords = query.split(' ').filter(k => k.length > 3);
+    const keywords = query.split(' ').filter(k => k.length > 3).slice(0, 5);
     if (keywords.length === 0) return "";
 
-    const searchStr = `%${keywords.join('%')}%`;
-
+    // Score based on how many keywords match
     const { rows } = await sql`
-      SELECT content, path FROM brain_memory
-      WHERE content ILIKE ${searchStr}
+      SELECT content, path,
+        (
+          (CASE WHEN content ILIKE ${'%' + (keywords[0] || '___') + '%'} THEN 1 ELSE 0 END) +
+          (CASE WHEN content ILIKE ${'%' + (keywords[1] || '___') + '%'} THEN 1 ELSE 0 END) +
+          (CASE WHEN content ILIKE ${'%' + (keywords[2] || '___') + '%'} THEN 1 ELSE 0 END)
+        ) as score
+      FROM brain_memory
+      WHERE content ILIKE ${'%' + keywords[0] + '%'}
+         OR content ILIKE ${'%' + (keywords[1] || keywords[0]) + '%'}
+      ORDER BY score DESC
       LIMIT 3;
     `;
 

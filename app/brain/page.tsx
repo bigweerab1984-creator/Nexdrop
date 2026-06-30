@@ -8,7 +8,19 @@ export default function BrainPage() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [showPalette, setShowPalette] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setShowPalette(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -33,6 +45,10 @@ export default function BrainPage() {
       });
       const data = await res.json();
       if (data.content) {
+        // Handle tool calls by recursively sending messages back to the API if needed
+        // but for now, we'll just display the full multi-turn interaction
+        // If the AI calls a tool, the API already handles up to 3 turns internally
+        // So we just update the message list with whatever the final result was
         setMessages([...newMessages, { role: 'assistant', content: data.content }]);
       }
     } catch (err) {
@@ -158,47 +174,99 @@ export default function BrainPage() {
                <p>Your brain is ready. Ask me anything.</p>
             </motion.div>
           )}
-          {messages.map((msg, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              style={{
-                alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                maxWidth: '85%',
-                background: msg.role === 'user' ? 'var(--accent)' : 'rgba(255,255,255,0.05)',
-                padding: '16px 24px',
-                borderRadius: 20,
-                color: msg.role === 'user' ? '#fff' : 'var(--text)',
-                position: 'relative',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-              }}
-            >
-              <div style={{ whiteSpace: 'pre-wrap', fontSize: 16, lineHeight: 1.5 }}>
-                {msg.content}
-              </div>
-              {msg.role === 'assistant' && (
-                <button
-                  onClick={() => saveToObsidian(msg.content)}
-                  style={{
-                    marginTop: 12,
-                    background: 'rgba(255,255,255,0.1)',
-                    border: 'none',
-                    color: 'var(--text)',
-                    padding: '6px 12px',
-                    borderRadius: 6,
-                    fontSize: 12,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 6
-                  }}
-                >
-                  📥 Save to Obsidian
-                </button>
-              )}
-            </motion.div>
-          ))}
+          {messages.map((msg, i) => {
+            if (msg.role === 'user' && msg.content.startsWith('TOOL_RESULT:')) {
+              try {
+                const result = JSON.parse(msg.content.replace('TOOL_RESULT: ', ''));
+                return (
+                  <motion.div key={i} style={{ alignSelf: 'center', width: '100%' }}>
+                    <div style={{
+                      fontSize: 12,
+                      fontFamily: 'var(--font-space-mono)',
+                      background: 'rgba(0,0,0,0.3)',
+                      padding: '8px 16px',
+                      borderRadius: 8,
+                      border: '1px solid var(--border)',
+                      color: 'var(--accent2)',
+                      marginBottom: 10
+                    }}>
+                      <span style={{ opacity: 0.5 }}>Executed Tool Result:</span>
+                      <details>
+                        <summary style={{ cursor: 'pointer' }}>View Details</summary>
+                        <pre style={{ marginTop: 8, fontSize: 10, overflowX: 'auto' }}>
+                          {JSON.stringify(result, null, 2)}
+                        </pre>
+                      </details>
+                    </div>
+                  </motion.div>
+                );
+              } catch { return null; }
+            }
+
+            return (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                style={{
+                  alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
+                  maxWidth: '85%',
+                  background: msg.role === 'user' ? 'var(--accent)' : 'rgba(255,255,255,0.05)',
+                  padding: '16px 24px',
+                  borderRadius: 20,
+                  color: msg.role === 'user' ? '#fff' : 'var(--text)',
+                  position: 'relative',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                }}
+              >
+                <div style={{ whiteSpace: 'pre-wrap', fontSize: 16, lineHeight: 1.5 }}>
+                  {msg.content.match(/\{"tool":.*?\}/) ? (
+                    <div style={{ fontStyle: 'italic', color: 'var(--accent2)' }}>
+                      Using tool... {msg.content.match(/\{"tool":\s*"(.*?)"/)?.[1]}
+                    </div>
+                  ) : msg.content}
+                </div>
+                {msg.role === 'assistant' && (
+                  <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+                    <button
+                      onClick={() => saveToObsidian(msg.content)}
+                      style={{
+                        background: 'rgba(255,255,255,0.1)',
+                        border: 'none',
+                        color: 'var(--text)',
+                        padding: '6px 12px',
+                        borderRadius: 6,
+                        fontSize: 12,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 6
+                      }}
+                    >
+                      📥 Save to Obsidian
+                    </button>
+                    <button
+                      onClick={() => {
+                        const utterance = new SpeechSynthesisUtterance(msg.content);
+                        window.speechSynthesis.speak(utterance);
+                      }}
+                      style={{
+                        background: 'rgba(255,255,255,0.1)',
+                        border: 'none',
+                        color: 'var(--text)',
+                        padding: '6px 12px',
+                        borderRadius: 6,
+                        fontSize: 12,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      🔊 Speak
+                    </button>
+                  </div>
+                )}
+              </motion.div>
+            );
+          })}
         </AnimatePresence>
         {isLoading && (
           <motion.div
@@ -279,6 +347,63 @@ export default function BrainPage() {
           Send
         </button>
       </div>
+
+      <AnimatePresence>
+        {showPalette && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            style={{
+              position: 'fixed',
+              top: '20%',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: 500,
+              background: 'var(--surface)',
+              border: '1px solid var(--border)',
+              borderRadius: 16,
+              zIndex: 10000,
+              padding: 16,
+              boxShadow: '0 20px 80px rgba(0,0,0,0.5)',
+              backdropFilter: 'blur(10px)'
+            }}
+          >
+            <div style={{ padding: '0 8px 12px', opacity: 0.5, fontSize: 12, fontWeight: 800, textTransform: 'uppercase' }}>
+              Command Palette
+            </div>
+            {[
+              { name: 'Monitor Activity', icon: '📊', path: '/brain/monitor' },
+              { name: 'Knowledge Graph', icon: '🕸️', path: '/brain/graph' },
+              { name: 'Shop Dashboard', icon: '🛍️', path: '/shop' },
+              { name: 'Clear Chat', icon: '🗑️', action: () => setMessages([]) }
+            ].map(item => (
+              <div
+                key={item.name}
+                onClick={() => {
+                  if (item.path) window.location.href = item.path;
+                  if (item.action) item.action();
+                  setShowPalette(false);
+                }}
+                style={{
+                  padding: '12px 16px',
+                  borderRadius: 8,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 12,
+                  transition: 'background 0.2s ease'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+              >
+                <span>{item.icon}</span>
+                <span style={{ fontWeight: 600 }}>{item.name}</span>
+              </div>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -106,6 +106,23 @@ export default function MonitorPage() {
 
                 <div style={{ flex: 1, fontSize: 15, fontWeight: 500 }}>
                   {log.message}
+                  {log.output && (
+                    <div style={{
+                      marginTop: 12,
+                      padding: 12,
+                      background: '#000',
+                      borderRadius: 8,
+                      fontSize: 12,
+                      fontFamily: 'var(--font-space-mono)',
+                      color: '#0f0',
+                      maxHeight: 300,
+                      overflowY: 'auto',
+                      whiteSpace: 'pre-wrap',
+                      border: '1px solid #333'
+                    }}>
+                      {log.output}
+                    </div>
+                  )}
                 </div>
               </motion.div>
             ))}

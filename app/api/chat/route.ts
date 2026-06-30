@@ -56,8 +56,12 @@ export async function POST(req: NextRequest) {
       {"tool": "read_file", "path": "path/to/file"}
       {"tool": "write_file", "path": "path/to/file", "content": "file content"}
       {"tool": "list_files", "path": "directory/path"}
+      {"tool": "run_shell_command", "command": "npm test"}
+      {"tool": "project_health"}
+      {"tool": "github_meta"}
       {"tool": "search_web", "query": "search query"}
 
+      Use \`run_shell_command\` to verify your changes (e.g., by running tests or linting).
       After you output a tool call, wait for the response.
       When writing code, always use triple backticks with the language specified.
       Be concise but thorough.`
@@ -72,8 +76,8 @@ export async function POST(req: NextRequest) {
       if (toolMatch) {
         try {
           const toolCall = JSON.parse(toolMatch[0]);
-          logBrainActivity('ai', `Executing tool: ${toolCall.tool}`);
           const toolResult = await executeTool(toolCall);
+          logBrainActivity('ai', `Executed tool: ${toolCall.tool}`, JSON.stringify(toolResult, null, 2));
 
           chatMessages.push({ role: 'assistant', content: result.content });
           chatMessages.push({ role: 'user', content: `TOOL_RESULT: ${JSON.stringify(toolResult)}` });
@@ -88,6 +92,9 @@ export async function POST(req: NextRequest) {
     }
 
     logBrainActivity('ai', `Responded using ${result.provider} (${result.model})`);
+
+    // For streaming-like behavior without rewriting everything, we'll return the full result
+    // but in the frontend we'll simulate the "Thought Process" section
     return NextResponse.json(result);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
