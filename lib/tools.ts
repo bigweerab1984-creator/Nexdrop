@@ -30,6 +30,21 @@ export async function executeTool(toolCall: any) {
         return { error: err.message };
       }
 
+    case 'write_file':
+      try {
+        const { content: fileContent } = toolCall;
+        const fullPath = path.join(process.cwd(), filePath);
+        if (!fullPath.startsWith(process.cwd())) {
+          return { error: 'Access denied: Path outside project root' };
+        }
+        // Ensure directory exists
+        await fs.mkdir(path.dirname(fullPath), { recursive: true });
+        await fs.writeFile(fullPath, fileContent, 'utf-8');
+        return { success: true, path: filePath };
+      } catch (err: any) {
+        return { error: err.message };
+      }
+
     case 'search_web':
       // Mock search for now
       return { results: [`Search results for "${query}": [Mock result 1], [Mock result 2]`] };

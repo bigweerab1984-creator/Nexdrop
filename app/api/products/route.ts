@@ -3,6 +3,8 @@
 // Keeps the CJ API key server-side; the browser never talks to CJ directly.
 import { NextRequest, NextResponse } from 'next/server';
 import { searchProducts, applyMarkup } from '@/lib/cj';
+import fs from 'fs/promises';
+import path from 'path';
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -10,9 +12,26 @@ export async function GET(req: NextRequest) {
   const page = Number(searchParams.get('page') ?? '1');
 
   try {
-    const { products, total } = await searchProducts({ keyword, pageNum: page, pageSize: 48 });
+    // Load local products
+    let localProducts: any[] = [];
+    try {
+      const localData = await fs.readFile(path.join(process.cwd(), 'data/products.json'), 'utf-8');
+      localProducts = JSON.parse(localData).products || [];
+    } catch (e) {
+      console.warn('No local products found');
+    }
 
-    const mapped = products.map((p) => ({
+    // Filter local products if keyword is present
+    if (keyword) {
+      localProducts = localProducts.filter(p =>
+        p.name.toLowerCase().includes(keyword.toLowerCase()) ||
+        p.category.toLowerCase().includes(keyword.toLowerCase())
+      );
+    }
+
+    const { products: cjProducts, total: cjTotal } = await searchProducts({ keyword, pageNum: page, pageSize: 48 });
+
+    const mappedCj = cjProducts.map((p) => ({
       id: p.pid,
       name: p.productNameEn,
       image: p.productImage,
@@ -20,7 +39,10 @@ export async function GET(req: NextRequest) {
       price: applyMarkup(Number(p.sellPrice)),
     }));
 
-    return NextResponse.json({ products: mapped, total });
+    // Combine products (local first)
+    const combined = [...localProducts, ...mappedCj];
+
+    return NextResponse.json({ products: combined, total: cjTotal + localProducts.length });
   } catch (err) {
     console.error('Failed to fetch CJ products', err);
     return NextResponse.json(

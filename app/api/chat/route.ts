@@ -54,6 +54,7 @@ export async function POST(req: NextRequest) {
       You have access to tools to help you answer questions about the current project.
       To use a tool, output a JSON block in this format:
       {"tool": "read_file", "path": "path/to/file"}
+      {"tool": "write_file", "path": "path/to/file", "content": "file content"}
       {"tool": "list_files", "path": "directory/path"}
       {"tool": "search_web", "query": "search query"}
 

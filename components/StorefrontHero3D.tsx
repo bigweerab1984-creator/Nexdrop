@@ -5,13 +5,13 @@ import { useRef, Suspense, useState, useEffect } from 'react';
 import * as THREE from 'three';
 import { Float, PerspectiveCamera, Environment, ContactShadows, useTexture } from '@react-three/drei';
 
-function ProductBox({ index, count, radius, speed, url }: { index: number, count: number, radius: number, speed: number, url: string }) {
+function ProductSphere({ index, count, radius, speed, url }: { index: number, count: number, radius: number, speed: number, url: string }) {
   const meshRef = useRef<THREE.Mesh>(null!);
 
   return (
-    <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
+    <Float speed={1.5} rotationIntensity={0.3} floatIntensity={0.3}>
       <mesh ref={meshRef} castShadow>
-        <boxGeometry args={[1.5, 1.5, 1.5]} />
+        <sphereGeometry args={[0.8, 64, 64]} />
         <Suspense fallback={<meshStandardMaterial color="#222" metalness={0.8} roughness={0.2} />}>
           <ProductMaterial url={url} index={index} count={count} radius={radius} speed={speed} meshRef={meshRef} />
         </Suspense>
@@ -68,13 +68,22 @@ function ProductMaterial({ url, index, count, radius, speed, meshRef }: any) {
 }
 
 function Scene() {
-  const images = [
-    'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400',
-    'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400',
-    'https://images.unsplash.com/photo-1526170315870-ef6876b84062?w=400',
-    'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400',
-    'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400',
-  ];
+  const [products, setProducts] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch('/api/products')
+      .then(res => res.json())
+      .then(data => {
+        const p = data.products || [];
+        // Fill up to 30 items
+        const filled = [];
+        for (let i = 0; i < 30; i++) {
+          filled.push(p[i % p.length]);
+        }
+        setProducts(filled);
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <>
@@ -82,8 +91,8 @@ function Scene() {
       <spotLight position={[10, 15, 10]} angle={0.3} penumbra={1} intensity={10} castShadow />
       <pointLight position={[-10, -10, -10]} intensity={5} color="#00f2ff" />
 
-      {images.map((url, i) => (
-        <ProductBox key={i} index={i} count={images.length} radius={6} speed={0.4} url={url} />
+      {products.map((p, i) => (
+        p && <ProductSphere key={i} index={i} count={products.length} radius={8 + (i % 3)} speed={0.2 + (i % 5) * 0.05} url={p.image} />
       ))}
 
       <Environment preset="city" />

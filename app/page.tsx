@@ -3,8 +3,17 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import StorefrontHero3D from '@/components/StorefrontHero3D';
+import { useEffect, useState } from 'react';
 
 export default function Home() {
+  const [products, setProducts] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch('/api/products')
+      .then(res => res.json())
+      .then(data => setProducts(data.products || []))
+      .catch(() => {});
+  }, []);
   const reviews = [
     {
       name: 'Priya S.',
@@ -160,12 +169,12 @@ export default function Home() {
         position: 'relative'
       }}>
         <motion.div
-          animate={{ x: [0, -1920] }}
+          animate={{ x: [0, -2000] }}
           transition={{
             x: {
               repeat: Infinity,
               repeatType: "loop",
-              duration: 30,
+              duration: 40,
               ease: "linear",
             },
           }}
@@ -176,25 +185,44 @@ export default function Home() {
             width: 'max-content'
           }}
         >
-          {[...Array(20)].map((_, i) => (
-            <div key={i} style={{
-              width: 200,
-              height: 200,
-              background: 'rgba(255,255,255,0.03)',
-              borderRadius: 24,
-              border: '1px solid var(--border)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0
-            }}>
-              <img
-                src={`https://picsum.photos/seed/${i + 100}/200/200`}
-                alt="Product"
-                style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 24, opacity: 0.8 }}
-              />
-            </div>
-          ))}
+          {products.length > 0 ? (
+            [...products, ...products, ...products].map((p, i) => (
+              <div key={i} style={{
+                width: 200,
+                height: 200,
+                background: 'rgba(255,255,255,0.03)',
+                borderRadius: 24,
+                border: '1px solid var(--border)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                overflow: 'hidden'
+              }}>
+                <img
+                  src={p.image}
+                  alt={p.name}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8 }}
+                />
+              </div>
+            ))
+          ) : (
+            [...Array(10)].map((_, i) => (
+              <div key={i} style={{
+                width: 200,
+                height: 200,
+                background: 'rgba(255,255,255,0.03)',
+                borderRadius: 24,
+                border: '1px solid var(--border)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0
+              }}>
+                <div style={{ width: '60%', height: '60%', background: 'rgba(255,255,255,0.1)', borderRadius: '50%' }} />
+              </div>
+            ))
+          )}
         </motion.div>
       </div>
 
