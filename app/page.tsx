@@ -1,35 +1,8 @@
 'use client';
 
-import { Canvas, useFrame } from '@react-three/fiber';
-import { useRef, Suspense } from 'react';
-import { Mesh } from 'three';
-import { Float, MeshDistortMaterial, Sphere } from '@react-three/drei';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-
-function Hero3D() {
-  return (
-    <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: -1, opacity: 0.6 }}>
-      <Canvas>
-        <ambientLight intensity={1} />
-        <pointLight position={[10, 10, 10]} />
-        <Suspense fallback={null}>
-          <Float speed={5} rotationIntensity={2} floatIntensity={2}>
-            <Sphere args={[1, 100, 200]} scale={2.4}>
-              <MeshDistortMaterial
-                color="#6c47ff"
-                attach="material"
-                distort={0.5}
-                speed={2}
-                roughness={0}
-              />
-            </Sphere>
-          </Float>
-        </Suspense>
-      </Canvas>
-    </div>
-  );
-}
+import StorefrontHero3D from '@/components/StorefrontHero3D';
 
 export default function Home() {
   const reviews = [
@@ -37,25 +10,16 @@ export default function Home() {
       name: 'Priya S.',
       rating: 5,
       text: "Found a desk lamp here I couldn't find anywhere else for under £20. Showed up in 6 days, exactly as pictured.",
-      rotate: -3,
     },
     {
       name: 'Marcus T.',
       rating: 5,
       text: 'Genuinely surprised by the checkout — fast, no weird upsells, and tracking updated the whole way.',
-      rotate: 2,
     },
     {
       name: 'Aisha K.',
       rating: 5,
       text: "Ordered three things in one go. All arrived separately but all arrived, and the prices beat every site I'd checked.",
-      rotate: -2,
-    },
-    {
-      name: 'Daniel R.',
-      rating: 5,
-      text: 'Customer support actually replied within a day when I had a sizing question. Did not expect that.',
-      rotate: 3,
     },
   ];
 
@@ -63,98 +27,91 @@ export default function Home() {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-      },
+      transition: { staggerChildren: 0.2 },
     },
   };
 
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
+  const itemVariants: any = {
+    hidden: { y: 30, opacity: 0 },
     visible: {
       y: 0,
       opacity: 1,
+      transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] }
     },
   };
 
   return (
-    <div
-      style={{
-        background: 'var(--bg)',
-        color: 'var(--text)',
-        minHeight: '100vh',
-        overflowX: 'hidden',
-      }}
-    >
+    <div style={{ background: 'var(--bg)', color: 'var(--text)', minHeight: '100vh' }}>
       {/* ---------- HERO ---------- */}
-      <section
-        style={{
-          position: 'relative',
-          padding: '120px 24px 80px',
-          maxWidth: 1200,
-          margin: '0 auto',
-          textAlign: 'center',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minHeight: '80vh',
-        }}
-      >
-        <Hero3D />
+      <section style={{
+        position: 'relative',
+        padding: '0 24px',
+        maxWidth: 1200,
+        margin: '0 auto',
+        textAlign: 'center',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '90vh',
+      }}>
+        <StorefrontHero3D />
 
         <motion.div
           initial="hidden"
           animate="visible"
           variants={containerVariants}
+          style={{ position: 'relative', zIndex: 10 }}
         >
           <motion.div
             variants={itemVariants}
             style={{
               display: 'inline-block',
-              background: 'var(--accent)',
-              color: '#fff',
+              background: 'rgba(0, 242, 255, 0.1)',
+              border: '1px solid var(--accent)',
+              color: 'var(--accent)',
               fontFamily: "'Space Mono', monospace",
-              fontSize: 13,
+              fontSize: 12,
               fontWeight: 700,
-              padding: '6px 14px',
-              borderRadius: 4,
-              marginBottom: 28,
-              boxShadow: '0 4px 14px rgba(108, 71, 255, 0.4)',
-              letterSpacing: '0.02em',
+              padding: '8px 16px',
+              borderRadius: 100,
+              marginBottom: 32,
+              textTransform: 'uppercase',
+              letterSpacing: '0.1em',
+              boxShadow: '0 0 20px var(--accent-glow)',
             }}
           >
-            NEW FINDS DAILY ✂
+            Elevating your setup ✂
           </motion.div>
 
           <motion.h1
             variants={itemVariants}
             style={{
-              fontFamily: "'Space Grotesk', Inter, sans-serif",
+              fontFamily: "var(--font-space-grotesk), Inter, sans-serif",
               fontWeight: 800,
-              fontSize: 'clamp(40px, 9vw, 84px)',
-              lineHeight: 1,
-              margin: '0 0 24px',
-              letterSpacing: '-0.04em',
-              background: 'linear-gradient(to bottom, #fff, #888)',
+              fontSize: 'clamp(48px, 10vw, 96px)',
+              lineHeight: 0.9,
+              margin: '0 0 32px',
+              letterSpacing: '-0.05em',
+              background: 'linear-gradient(to bottom, #fff 40%, #666 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
             }}
           >
-            Good stuff.
+            Future Goods.
             <br />
-            <span style={{ color: 'var(--accent2)', WebkitTextFillColor: 'initial' }}>Stupid good prices.</span>
+            <span style={{ color: 'var(--accent2)', WebkitTextFillColor: 'initial' }}>Stupid Low Prices.</span>
           </motion.h1>
 
           <motion.p
             variants={itemVariants}
             style={{
-              fontSize: 20,
-              lineHeight: 1.6,
-              color: 'var(--text)',
-              opacity: 0.7,
-              maxWidth: 600,
-              margin: '0 auto 40px',
+              fontSize: 22,
+              lineHeight: 1.5,
+              color: 'var(--muted)',
+              maxWidth: 640,
+              margin: '0 auto 48px',
+              fontWeight: 400,
             }}
           >
             NexDrop hunts down genuinely useful, slightly unexpected things —
@@ -165,176 +122,106 @@ export default function Home() {
             <Link
               href="/shop"
               style={{
-                display: 'inline-block',
-                background: 'var(--accent2)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 12,
+                background: 'var(--accent)',
                 color: '#000',
-                fontWeight: 700,
+                fontWeight: 800,
                 fontSize: 18,
-                padding: '18px 48px',
-                borderRadius: 50,
-                textDecoration: 'none',
-                boxShadow: '0 8px 24px rgba(0, 229, 160, 0.3)',
-                transition: 'all 0.2s ease',
+                padding: '20px 48px',
+                borderRadius: 100,
+                boxShadow: '0 8px 32px var(--accent-glow)',
+                transition: 'all 0.3s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-4px)';
+                e.currentTarget.style.boxShadow = '0 12px 48px var(--accent-glow)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 8px 32px var(--accent-glow)';
               }}
             >
-              Start browsing &rarr;
+              Start Browsing
+              <span style={{ fontSize: 24 }}>→</span>
             </Link>
           </motion.div>
         </motion.div>
       </section>
 
-      {/* ---------- TRUST TICKER ---------- */}
-      <div
-        style={{
-          background: 'var(--surface)',
-          borderTop: '1px solid var(--border)',
-          borderBottom: '1px solid var(--border)',
-          padding: '20px 0',
-          overflow: 'hidden',
-          whiteSpace: 'nowrap',
-          position: 'relative',
-        }}
-      >
-        <div
-          style={{
-            display: 'inline-flex',
-            gap: 64,
-            fontFamily: "'Space Mono', monospace",
-            fontSize: 14,
-            fontWeight: 700,
-            letterSpacing: '0.08em',
-          }}
-        >
-          {Array(5)
-            .fill([
-              '⚡ FAST SHIPPING',
-              '🔒 SECURE CHECKOUT',
-              '⭐ REAL REVIEWS',
-              '↩ EASY RETURNS',
-            ])
-            .flat()
-            .map((item, i) => (
-              <span key={i} style={{ color: 'var(--accent2)' }}>
-                {item}
-              </span>
-            ))}
+      {/* ---------- FEATURES ---------- */}
+      <div style={{
+        background: 'rgba(255,255,255,0.02)',
+        borderTop: '1px solid var(--border)',
+        borderBottom: '1px solid var(--border)',
+        padding: '32px 0',
+      }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: 64,
+          flexWrap: 'wrap',
+          fontFamily: "'Space Mono', monospace",
+          fontSize: 14,
+          fontWeight: 700,
+          opacity: 0.6
+        }}>
+          {['⚡ FAST SHIPPING', '🔒 SECURE PAY', '⭐ 5-STAR SERVICE', '↩ EASY RETURNS'].map((feat, i) => (
+            <span key={i}>{feat}</span>
+          ))}
         </div>
       </div>
 
       {/* ---------- REVIEWS ---------- */}
-      <section
-        style={{
-          padding: '100px 24px',
-          maxWidth: 1200,
-          margin: '0 auto',
-        }}
-      >
-        <h2
-          style={{
-            fontFamily: "'Space Grotesk', Inter, sans-serif",
-            fontWeight: 800,
-            fontSize: 'clamp(32px, 5vw, 48px)',
-            textAlign: 'center',
-            marginBottom: 16,
-            letterSpacing: '-0.02em',
-          }}
-        >
-          People keep coming back
+      <section style={{ padding: '120px 24px', maxWidth: 1200, margin: '0 auto' }}>
+        <h2 style={{
+          fontFamily: "var(--font-space-grotesk), Inter, sans-serif",
+          fontWeight: 800,
+          fontSize: 'clamp(32px, 5vw, 56px)',
+          textAlign: 'center',
+          marginBottom: 80,
+          letterSpacing: '-0.02em',
+        }}>
+          Loved by thousands.
         </h2>
-        <p
-          style={{
-            textAlign: 'center',
-            opacity: 0.6,
-            fontSize: 18,
-            marginBottom: 64,
-          }}
-        >
-          A few words from people who&apos;ve actually ordered.
-        </p>
 
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: 32,
-          }}
-        >
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: 32,
+        }}>
           {reviews.map((r, i) => (
             <motion.div
               key={i}
-              whileHover={{ y: -10, transition: { duration: 0.2 } }}
+              whileHover={{ y: -8 }}
+              className="glass"
               style={{
-                background: 'var(--surface)',
-                border: '1px solid var(--border)',
-                borderRadius: 20,
-                padding: '32px',
-                position: 'relative',
+                borderRadius: 32,
+                padding: '40px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 20
               }}
             >
-              <div style={{ marginBottom: 16, color: 'var(--accent2)', fontSize: 20 }}>
+              <div style={{ color: 'var(--accent)', fontSize: 20 }}>
                 {'★'.repeat(r.rating)}
               </div>
-              <p
-                style={{
-                  fontSize: 16,
-                  lineHeight: 1.6,
-                  color: 'var(--text)',
-                  marginBottom: 24,
-                }}
-              >
+              <p style={{ fontSize: 18, lineHeight: 1.6, color: 'var(--text)', flex: 1 }}>
                 &ldquo;{r.text}&rdquo;
               </p>
-              <div
-                style={{
-                  fontFamily: "'Space Mono', monospace",
-                  fontSize: 14,
-                  fontWeight: 700,
-                  color: 'var(--accent)',
-                }}
-              >
-                &mdash; {r.name}
+              <div style={{
+                fontFamily: "'Space Mono', monospace",
+                fontSize: 14,
+                fontWeight: 700,
+                color: 'var(--muted)',
+                textTransform: 'uppercase'
+              }}>
+                — {r.name}
               </div>
             </motion.div>
           ))}
         </div>
-      </section>
-
-      {/* ---------- FOOTER CTA ---------- */}
-      <section
-        style={{
-          background: 'var(--surface)',
-          padding: '100px 24px',
-          textAlign: 'center',
-          borderTop: '1px solid var(--border)',
-        }}
-      >
-        <h2
-          style={{
-            fontFamily: "'Space Grotesk', Inter, sans-serif",
-            fontWeight: 800,
-            fontSize: 'clamp(32px, 5vw, 48px)',
-            marginBottom: 32,
-            letterSpacing: '-0.02em',
-          }}
-        >
-          Ready to dig in?
-        </h2>
-        <Link
-          href="/shop"
-          style={{
-            display: 'inline-block',
-            background: 'var(--accent)',
-            color: '#fff',
-            fontWeight: 700,
-            fontSize: 18,
-            padding: '18px 48px',
-            borderRadius: 50,
-            textDecoration: 'none',
-            boxShadow: '0 8px 24px rgba(108, 71, 255, 0.3)',
-          }}
-        >
-          See what&apos;s new &rarr;
-        </Link>
       </section>
     </div>
   );

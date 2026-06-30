@@ -6,16 +6,19 @@ export function middleware(request: NextRequest) {
 
   // Protect brain-related routes
   if (pathname.startsWith('/brain') || pathname.startsWith('/api/chat') || pathname.startsWith('/api/obsidian') || pathname.startsWith('/api/logs')) {
-    const authHeader = request.headers.get('authorization');
     const password = process.env.BRAIN_PASSWORD;
 
     // If no password is set, allow access (for initial setup)
     if (!password) return NextResponse.next();
 
-    // Check for "Bearer <password>" or a custom header/cookie
-    if (authHeader !== `Bearer ${password}`) {
+    const authHeader = request.headers.get('authorization');
+    const cookiePassword = request.cookies.get('brain_password')?.value;
+
+    // Check for Bearer token (API) or Cookie (UI)
+    if (authHeader !== `Bearer ${password}` && cookiePassword !== password) {
+      // If it's a page request, we could redirect to a login, but for now we'll just block
       return new NextResponse(
-        JSON.stringify({ error: 'Unauthorized access to Second Brain' }),
+        JSON.stringify({ error: 'Unauthorized access to Second Brain. Please set brain_password cookie or Authorization header.' }),
         { status: 401, headers: { 'Content-Type': 'application/json' } }
       );
     }

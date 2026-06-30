@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
 
     // Simple tool execution loop (max 3 iterations)
     for (let i = 0; i < 3; i++) {
-      const toolMatch = result.content.match(/\{"tool":\s*".*?"\}/);
+      const toolMatch = result.content.match(/\{"tool":\s*".*?"(?:,\s*".*?":\s*".*?")*?\}/);
       if (toolMatch) {
         try {
           const toolCall = JSON.parse(toolMatch[0]);
