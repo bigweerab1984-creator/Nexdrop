@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSearchParams } from 'next/navigation';
 
 type Product = {
   id: string;
@@ -13,11 +14,12 @@ type Product = {
 
 type CartLine = { productId: string; quantity: number; name: string; price: number };
 
-export default function ShopPage() {
+function ShopContent() {
+  const searchParams = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(searchParams.get('q') || '');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [cart, setCart] = useState<CartLine[]>([]);
   const [checkingOut, setCheckingOut] = useState(false);
@@ -284,5 +286,13 @@ export default function ShopPage() {
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+export default function ShopPage() {
+  return (
+    <Suspense fallback={<div>Loading Shop...</div>}>
+      <ShopContent />
+    </Suspense>
   );
 }

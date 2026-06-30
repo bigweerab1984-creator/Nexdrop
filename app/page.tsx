@@ -187,24 +187,37 @@ export default function Home() {
         >
           {products.length > 0 ? (
             [...products, ...products, ...products].map((p, i) => (
-              <div key={i} style={{
-                width: 200,
-                height: 200,
-                background: 'rgba(255,255,255,0.03)',
-                borderRadius: 24,
-                border: '1px solid var(--border)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-                overflow: 'hidden'
-              }}>
+              <Link
+                key={i}
+                href={`/shop?q=${encodeURIComponent(p.name)}`}
+                style={{
+                  width: 200,
+                  height: 200,
+                  background: 'rgba(255,255,255,0.03)',
+                  borderRadius: 24,
+                  border: '1px solid var(--border)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                  overflow: 'hidden',
+                  transition: 'all 0.3s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                  e.currentTarget.style.borderColor = 'var(--accent)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.borderColor = 'var(--border)';
+                }}
+              >
                 <img
                   src={p.image}
                   alt={p.name}
                   style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8 }}
                 />
-              </div>
+              </Link>
             ))
           ) : (
             [...Array(10)].map((_, i) => (
