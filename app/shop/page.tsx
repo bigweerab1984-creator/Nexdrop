@@ -18,8 +18,11 @@ export default function ShopPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
   const [cart, setCart] = useState<CartLine[]>([]);
   const [checkingOut, setCheckingOut] = useState(false);
+
+  const categories = ['All', 'Electronics', 'Home', 'Health', 'Sports', 'Fashion', 'Kitchen'];
 
   useEffect(() => {
     const controller = new AbortController();
@@ -90,7 +93,7 @@ export default function ShopPage() {
         <p style={{ opacity: 0.6, fontSize: 18 }}>Handpicked products at wholesale prices.</p>
       </motion.div>
 
-      <div style={{ position: 'relative', marginBottom: 48 }}>
+      <div style={{ position: 'relative', marginBottom: 32 }}>
         <input
           placeholder="Search products..."
           value={query}
@@ -109,6 +112,37 @@ export default function ShopPage() {
           onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
           onBlur={(e) => (e.target.style.borderColor = 'var(--border)')}
         />
+      </div>
+
+      <div style={{
+        display: 'flex',
+        gap: 12,
+        overflowX: 'auto',
+        paddingBottom: 16,
+        marginBottom: 40,
+        scrollbarWidth: 'none'
+      }}>
+        {categories.map((cat) => (
+          <button
+            key={cat}
+            onClick={() => setSelectedCategory(cat)}
+            style={{
+              padding: '10px 24px',
+              borderRadius: 100,
+              border: '1px solid var(--border)',
+              background: selectedCategory === cat ? 'var(--accent)' : 'var(--surface)',
+              color: selectedCategory === cat ? '#000' : 'var(--text)',
+              fontWeight: 700,
+              fontSize: 14,
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              transition: 'all 0.2s ease',
+              boxShadow: selectedCategory === cat ? '0 0 20px var(--accent-glow)' : 'none'
+            }}
+          >
+            {cat}
+          </button>
+        ))}
       </div>
 
       {error && (
@@ -140,7 +174,7 @@ export default function ShopPage() {
           }}
         >
           <AnimatePresence>
-            {products.map((p) => (
+            {products.filter(p => selectedCategory === 'All' || p.category.toLowerCase().includes(selectedCategory.toLowerCase())).map((p) => (
               <motion.div
                 layout
                 key={p.id}

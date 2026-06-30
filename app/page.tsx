@@ -42,6 +42,7 @@ export default function Home() {
 
   return (
     <div style={{ background: 'var(--bg)', color: 'var(--text)', minHeight: '100vh' }}>
+      <StorefrontHero3D />
       {/* ---------- HERO ---------- */}
       <section style={{
         position: 'relative',
@@ -55,8 +56,6 @@ export default function Home() {
         justifyContent: 'center',
         minHeight: '90vh',
       }}>
-        <StorefrontHero3D />
-
         <motion.div
           initial="hidden"
           animate="visible"
@@ -150,10 +149,58 @@ export default function Home() {
         </motion.div>
       </section>
 
+      {/* ---------- ROLLING PRODUCT SCREEN ---------- */}
+      <div style={{
+        width: '100%',
+        overflow: 'hidden',
+        background: 'var(--surface)',
+        borderTop: '1px solid var(--border)',
+        borderBottom: '1px solid var(--border)',
+        padding: '40px 0',
+        position: 'relative'
+      }}>
+        <motion.div
+          animate={{ x: [0, -1920] }}
+          transition={{
+            x: {
+              repeat: Infinity,
+              repeatType: "loop",
+              duration: 30,
+              ease: "linear",
+            },
+          }}
+          style={{
+            display: 'flex',
+            gap: 40,
+            whiteSpace: 'nowrap',
+            width: 'max-content'
+          }}
+        >
+          {[...Array(20)].map((_, i) => (
+            <div key={i} style={{
+              width: 200,
+              height: 200,
+              background: 'rgba(255,255,255,0.03)',
+              borderRadius: 24,
+              border: '1px solid var(--border)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
+            }}>
+              <img
+                src={`https://picsum.photos/seed/${i + 100}/200/200`}
+                alt="Product"
+                style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 24, opacity: 0.8 }}
+              />
+            </div>
+          ))}
+        </motion.div>
+      </div>
+
       {/* ---------- FEATURES ---------- */}
       <div style={{
         background: 'rgba(255,255,255,0.02)',
-        borderTop: '1px solid var(--border)',
         borderBottom: '1px solid var(--border)',
         padding: '32px 0',
       }}>

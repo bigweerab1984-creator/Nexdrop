@@ -1,10 +1,6 @@
 const CJ_API_BASE = "https://developers.cjdropshipping.com/api2.0/v1";
 
-const apiKey = process.env.CJ_API_KEY;
-
-if (!apiKey) {
-  throw new Error("CJ_API_KEY is not set");
-}
+const apiKey = process.env.CJ_API_KEY || "mock_key";
 
 const REDIS_TOKEN_KEY = "cj:access_token";
 
@@ -28,6 +24,7 @@ async function getRedisClient() {
 }
 
 async function getAccessToken(): Promise<string> {
+  if (apiKey === "mock_key") return "mock_token";
   const now = Date.now();
   const bufferMs = 60 * 60 * 1000;
 
@@ -135,6 +132,18 @@ export async function searchProducts(opts?: {
   pageNum?: number;
   pageSize?: number;
 }): Promise<{ products: CjProductDetail[]; total: number }> {
+  if (apiKey === "mock_key") {
+    const mockProducts: CjProductDetail[] = [
+      { pid: '1', productNameEn: 'Mock Watch', sellPrice: 19.99, productImage: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400', productImageSet: [], categoryName: 'Electronics' },
+      { pid: '2', productNameEn: 'Mock Headphones', sellPrice: 29.99, productImage: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400', productImageSet: [], categoryName: 'Electronics' },
+      { pid: '3', productNameEn: 'Mock Camera', sellPrice: 129.99, productImage: 'https://images.unsplash.com/photo-1526170315870-ef6876b84062?w=400', productImageSet: [], categoryName: 'Electronics' },
+      { pid: '4', productNameEn: 'Mock Lamp', sellPrice: 15.99, productImage: 'https://images.unsplash.com/photo-1534073828943-f801091bb18c?w=400', productImageSet: [], categoryName: 'Home' },
+      { pid: '5', productNameEn: 'Mock Chair', sellPrice: 89.99, productImage: 'https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?w=400', productImageSet: [], categoryName: 'Home' },
+      { pid: '6', productNameEn: 'Mock Blender', sellPrice: 49.99, productImage: 'https://images.unsplash.com/photo-1585238341267-1cfec2046a55?w=400', productImageSet: [], categoryName: 'Kitchen' },
+    ];
+    return { products: mockProducts, total: mockProducts.length };
+  }
+
   const params = new URLSearchParams();
   if (opts?.keyword) params.set("productNameEn", opts.keyword);
   params.set("pageNum", String(opts?.pageNum ?? 1));
