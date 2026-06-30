@@ -1,6 +1,5 @@
 // app/layout.tsx
 import Navbar from '@/components/Navbar';
-import SecondBrainWidget from '@/components/SecondBrainWidget';
 import './globals.css';
 
 export const metadata = {
@@ -32,7 +31,6 @@ export default function RootLayout({
         <main style={{ paddingTop: 72 }}>
           {children}
         </main>
-        <SecondBrainWidget />
       </body>
     </html>
   );
