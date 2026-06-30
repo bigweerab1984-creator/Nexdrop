@@ -33,6 +33,9 @@ export default function Navbar() {
           <Link href="/shop" style={{ textDecoration: 'none', color: '#fff', fontWeight: 600, fontSize: 15, opacity: 0.8 }}>
             Shop
           </Link>
+          <Link href="/brain/monitor" style={{ textDecoration: 'none', color: '#fff', fontWeight: 600, fontSize: 15, opacity: 0.8 }}>
+            Monitor
+          </Link>
           <Link href="/contact" style={{ textDecoration: 'none', color: '#fff', fontWeight: 600, fontSize: 15, opacity: 0.8 }}>
             Contact
           </Link>
