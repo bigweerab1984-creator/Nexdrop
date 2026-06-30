@@ -29,7 +29,7 @@ export default function Navbar() {
           NEX<span style={{ color: 'var(--accent)' }}>DROP</span>
         </Link>
 
-        <div style={{ display: 'flex', gap: 32 }}>
+        <div style={{ display: 'flex', gap: 32, alignItems: 'center' }}>
           <Link href="/shop" style={{ textDecoration: 'none', color: '#fff', fontWeight: 600, fontSize: 15, opacity: 0.8 }}>
             Shop
           </Link>

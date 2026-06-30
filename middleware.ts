@@ -16,7 +16,13 @@ export function middleware(request: NextRequest) {
 
     // Check for Bearer token (API) or Cookie (UI)
     if (authHeader !== `Bearer ${password}` && cookiePassword !== password) {
-      // If it's a page request, we could redirect to a login, but for now we'll just block
+      // If it's a browser page request (not an API request), redirect to login
+      if (!pathname.startsWith('/api/')) {
+        const url = request.nextUrl.clone();
+        url.pathname = '/login';
+        return NextResponse.redirect(url);
+      }
+
       return new NextResponse(
         JSON.stringify({ error: 'Unauthorized access to Second Brain. Please set brain_password cookie or Authorization header.' }),
         { status: 401, headers: { 'Content-Type': 'application/json' } }
