@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getBrainLogs } from '@/lib/logger';
+import { getBrainLogs, initLogger } from '@/lib/logger';
 
 export async function GET() {
-  return NextResponse.json(getBrainLogs());
+  await initLogger();
+  const logs = await getBrainLogs();
+  return NextResponse.json(logs);
 }

@@ -1,5 +1,22 @@
 import sys
 import os
+from pathlib import Path
+
+# Simple .env loader
+def load_env():
+    env_path = Path(__file__).parent.parent / '.env'
+    if not env_path.exists():
+        env_path = Path(__file__).parent.parent / '.env.local'
+
+    if env_path.exists():
+        with open(env_path) as f:
+            for line in f:
+                if line.strip() and not line.startswith('#'):
+                    key, value = line.strip().split('=', 1)
+                    os.environ[key] = value
+
+load_env()
+
 from engine import BrainEngine
 from obsidian import ObsidianClient
 # Voice might fail if dependencies are not installed in the environment, so we handle it gracefully
@@ -16,8 +33,9 @@ def main():
 
     messages = []
 
-    print("=== Second Brain (Standalone) ===")
+    print("=== Second Brain (Standalone CLI) ===")
     print("Commands: /voice, /save, /clear, /exit")
+    print(f"Connected to Brain API: {engine.api_url}")
 
     while True:
         try:
@@ -70,8 +88,8 @@ if __name__ == "__main__":
         print("Running system check...")
         engine = BrainEngine()
         obsidian = ObsidianClient()
-        print(f"AI Provider Key Set: {bool(engine.api_key)}")
-        print(f"Obsidian API Key Set: {bool(obsidian.api_key)}")
+        print(f"Brain API URL: {engine.api_url}")
+        print(f"Password Set: {bool(os.getenv('BRAIN_PASSWORD'))}")
         print(f"Voice Available: {VOICE_AVAILABLE}")
         print("System check complete.")
     else:
