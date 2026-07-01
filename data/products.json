@@ -31,6 +31,70 @@
       "category": "Sports",
       "price": 120.00,
       "onSale": false
+    },
+    {
+      "id": "local-5",
+      "name": "Eon Mechanical Keyboard",
+      "image": "https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?w=800",
+      "category": "Electronics",
+      "price": 149.00,
+      "onSale": true
+    },
+    {
+      "id": "local-6",
+      "name": "Titan Gaming Mouse",
+      "image": "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=800",
+      "category": "Electronics",
+      "price": 79.00,
+      "onSale": false
+    },
+    {
+      "id": "local-7",
+      "name": "Zen Ceramic Planter",
+      "image": "https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=800",
+      "category": "Home",
+      "price": 24.00,
+      "onSale": true
+    },
+    {
+      "id": "local-8",
+      "name": "Luxe Linen Cushion",
+      "image": "https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=800",
+      "category": "Home",
+      "price": 35.00,
+      "onSale": false
+    },
+    {
+      "id": "local-9",
+      "name": "Grip Yoga Mat",
+      "image": "https://images.unsplash.com/photo-1592432678016-e910b452f9a2?w=800",
+      "category": "Sports",
+      "price": 40.00,
+      "onSale": true
+    },
+    {
+      "id": "local-10",
+      "name": "Drift Skateboard",
+      "image": "https://images.unsplash.com/photo-1547447134-cd3f5c716030?w=800",
+      "category": "Sports",
+      "price": 85.00,
+      "onSale": false
+    },
+    {
+      "id": "local-11",
+      "name": "Apex Windbreaker",
+      "image": "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=800",
+      "category": "Fashion",
+      "price": 65.00,
+      "onSale": true
+    },
+    {
+      "id": "local-12",
+      "name": "Onyx Sunglasses",
+      "image": "https://images.unsplash.com/photo-1511499767390-a7335958beba?w=800",
+      "category": "Fashion",
+      "price": 120.00,
+      "onSale": false
     }
   ]
 }

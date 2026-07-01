@@ -34,26 +34,33 @@ export async function GET(req: NextRequest) {
       localProducts = localProducts.filter(p => p.onSale);
     }
 
-    const { products: cjProducts, total: cjTotal } = await searchProducts({ keyword, pageNum: page, pageSize: 48 });
+    let mappedCj: any[] = [];
+    let cjTotal = 0;
 
-    const mappedCj = cjProducts.map((p) => ({
-      id: p.pid,
-      name: p.productNameEn,
-      image: p.productImage,
-      category: p.categoryName,
-      price: applyMarkup(Number(p.sellPrice)),
-      onSale: Number(p.sellPrice) < 20 // Mock sale logic for CJ
-    })).filter(p => !saleOnly || p.onSale);
+    try {
+      const { products: cjProducts, total } = await searchProducts({ keyword, pageNum: page, pageSize: 48 });
+      cjTotal = total;
+      mappedCj = cjProducts.map((p) => ({
+        id: p.pid,
+        name: p.productNameEn,
+        image: p.productImage,
+        category: p.categoryName,
+        price: applyMarkup(Number(p.sellPrice)),
+        onSale: Number(p.sellPrice) < 20 // Mock sale logic for CJ
+      })).filter(p => !saleOnly || p.onSale);
+    } catch (cjErr) {
+      console.warn('CJ fetch failed, returning local products only', cjErr);
+    }
 
     // Combine products (local first)
     const combined = [...localProducts, ...mappedCj];
 
     return NextResponse.json({ products: combined, total: cjTotal + localProducts.length });
   } catch (err) {
-    console.error('Failed to fetch CJ products', err);
+    console.error('Fatal error in products API', err);
     return NextResponse.json(
       { error: 'Could not load products right now. Please try again shortly.' },
-      { status: 502 }
+      { status: 500 }
     );
   }
 }

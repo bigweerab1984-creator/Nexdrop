@@ -3,17 +3,34 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import StorefrontHero3D from '@/components/StorefrontHero3D';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 
 export default function Home() {
-  const [products, setProducts] = useState<any[]>([]);
+  const [allProducts, setAllProducts] = useState<any[]>([]);
+  const [saleProducts, setSaleProducts] = useState<any[]>([]);
 
   useEffect(() => {
+    // Fetch all products for the category section
+    fetch('/api/products')
+      .then(res => res.json())
+      .then(data => setAllProducts(data.products || []))
+      .catch(() => {});
+
+    // Fetch sale products for the marquee
     fetch('/api/products?saleOnly=true')
       .then(res => res.json())
-      .then(data => setProducts(data.products || []))
+      .then(data => setSaleProducts(data.products || []))
       .catch(() => {});
   }, []);
+
+  const categories = useMemo(() => {
+    const cats = Array.from(new Set(allProducts.map(p => p.category)));
+    return cats.map(cat => ({
+      name: cat,
+      products: allProducts.filter(p => p.category === cat).slice(0, 4)
+    }));
+  }, [allProducts]);
+
   const reviews = [
     {
       name: 'Priya S.',
@@ -195,8 +212,8 @@ export default function Home() {
             width: 'max-content'
           }}
         >
-          {products.length > 0 ? (
-            [...products, ...products, ...products].map((p, i) => (
+          {saleProducts.length > 0 ? (
+            [...saleProducts, ...saleProducts, ...saleProducts].map((p, i) => (
               <Link
                 key={i}
                 href={`/shop?q=${encodeURIComponent(p.name)}`}
@@ -248,6 +265,102 @@ export default function Home() {
           )}
         </motion.div>
       </div>
+
+      {/* ---------- CATEGORY SECTIONS ---------- */}
+      <section style={{ padding: '100px 24px', maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 100 }}>
+          {categories.map((cat, idx) => (
+            <div key={cat.name}>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'flex-end',
+                marginBottom: 40,
+                borderBottom: '1px solid var(--border)',
+                paddingBottom: 20
+              }}>
+                <div>
+                  <h2 style={{
+                    fontSize: 'clamp(24px, 4vw, 40px)',
+                    fontWeight: 800,
+                    letterSpacing: '-0.02em',
+                    textTransform: 'uppercase'
+                  }}>
+                    {cat.name} <span style={{ color: 'var(--accent)' }}>Collection</span>
+                  </h2>
+                </div>
+                <Link href={`/shop?category=${cat.name}`} style={{
+                  color: 'var(--accent)',
+                  fontWeight: 700,
+                  fontSize: 14,
+                  textDecoration: 'none',
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase'
+                }}>
+                  View All {cat.name} →
+                </Link>
+              </div>
+
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+                gap: 24
+              }}>
+                {cat.products.map((p: any) => (
+                  <motion.div
+                    key={p.id}
+                    whileHover={{ y: -10 }}
+                    style={{
+                      background: 'var(--surface)',
+                      borderRadius: 24,
+                      overflow: 'hidden',
+                      border: '1px solid var(--border)',
+                      position: 'relative'
+                    }}
+                  >
+                    <div style={{ height: 300, overflow: 'hidden', position: 'relative' }}>
+                      <img src={p.image} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      {p.onSale && (
+                        <div style={{
+                          position: 'absolute',
+                          top: 16,
+                          right: 16,
+                          background: 'var(--accent2)',
+                          color: '#000',
+                          padding: '4px 12px',
+                          borderRadius: 8,
+                          fontSize: 12,
+                          fontWeight: 800
+                        }}>
+                          SALE
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ padding: 24 }}>
+                      <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 8 }}>{p.name}</h3>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: 20, fontWeight: 800, color: 'var(--accent)' }}>${p.price}</span>
+                        <Link href={`/shop?q=${encodeURIComponent(p.name)}`} style={{
+                          background: 'rgba(255,255,255,0.05)',
+                          border: '1px solid var(--border)',
+                          padding: '8px 16px',
+                          borderRadius: 12,
+                          color: 'var(--text)',
+                          fontSize: 14,
+                          fontWeight: 600,
+                          textDecoration: 'none'
+                        }}>
+                          Details
+                        </Link>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* ---------- FEATURES ---------- */}
       <div style={{
