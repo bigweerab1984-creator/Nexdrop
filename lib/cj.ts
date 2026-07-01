@@ -49,14 +49,29 @@ async function getAccessToken(): Promise<string> {
     }
   }
 
-  const res = await fetch(`${CJ_API_BASE}/authentication/getAccessToken`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ apiKey }),
-  });
+  let res;
+  let attempt = 0;
+  const maxAttempts = 3;
 
-  if (!res.ok) {
-    throw new Error(`CJ authentication failed: ${res.status} ${await res.text()}`);
+  while (attempt < maxAttempts) {
+    attempt++;
+    res = await fetch(`${CJ_API_BASE}/authentication/getAccessToken`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ apiKey }),
+    });
+
+    if (res.status === 429) {
+      if (attempt < maxAttempts) {
+        await sleep(1000 * attempt);
+        continue;
+      }
+    }
+    break;
+  }
+
+  if (!res || !res.ok) {
+    throw new Error(`CJ authentication failed: ${res?.status} ${await res?.text()}`);
   }
 
   const data = await res.json();

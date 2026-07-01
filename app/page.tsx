@@ -80,109 +80,127 @@ export default function Home() {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        minHeight: '90vh',
+        minHeight: '100vh',
+        zIndex: 1,
+        pointerEvents: 'none'
       }}>
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={containerVariants}
-          style={{ position: 'relative', zIndex: 10 }}
-        >
+        <div style={{ pointerEvents: 'auto' }}>
           <motion.div
-            variants={itemVariants}
-            style={{
-              display: 'inline-block',
-              background: 'rgba(0, 242, 255, 0.1)',
-              border: '1px solid var(--accent)',
-              color: 'var(--accent)',
-              fontFamily: "'Space Mono', monospace",
-              fontSize: 12,
-              fontWeight: 700,
-              padding: '8px 16px',
-              borderRadius: 100,
-              marginBottom: 32,
-              textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-              boxShadow: '0 0 20px var(--accent-glow)',
-            }}
+            initial="hidden"
+            animate="visible"
+            variants={containerVariants}
+            style={{ position: 'relative', zIndex: 10 }}
           >
-            Elevating your setup ✂
-          </motion.div>
-
-          <motion.h1
-            variants={itemVariants}
-            animate={{
-              scale: [1, 1.05, 1],
-              rotate: [0, 1, -1, 0],
-            }}
-            transition={{
-              duration: 5,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-            style={{
-              fontFamily: "var(--font-space-grotesk), Inter, sans-serif",
-              fontWeight: 800,
-              fontSize: 'clamp(48px, 10vw, 96px)',
-              lineHeight: 0.9,
-              margin: '0 0 32px',
-              letterSpacing: '-0.05em',
-              background: 'linear-gradient(to bottom, #fff 40%, #666 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              textShadow: '0 0 30px rgba(255,255,255,0.2)'
-            }}
-          >
-            Future Goods.
-            <br />
-            <span style={{ color: 'var(--accent2)', WebkitTextFillColor: 'initial' }}>Stupid Low Prices.</span>
-          </motion.h1>
-
-          <motion.p
-            variants={itemVariants}
-            style={{
-              fontSize: 22,
-              lineHeight: 1.5,
-              color: 'var(--muted)',
-              maxWidth: 640,
-              margin: '0 auto 48px',
-              fontWeight: 400,
-            }}
-          >
-            NexDrop hunts down genuinely useful, slightly unexpected things —
-            and gets them to your door without the markup.
-          </motion.p>
-
-          <motion.div variants={itemVariants}>
-            <Link
-              href="/shop"
+            <motion.div
+              variants={itemVariants}
               style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 12,
-                background: 'var(--accent)',
-                color: '#000',
-                fontWeight: 800,
-                fontSize: 18,
-                padding: '20px 48px',
+                display: 'inline-block',
+                background: 'rgba(0, 242, 255, 0.1)',
+                border: '1px solid var(--accent)',
+                color: 'var(--accent)',
+                fontFamily: "'Space Mono', monospace",
+                fontSize: 12,
+                fontWeight: 700,
+                padding: '8px 16px',
                 borderRadius: 100,
-                boxShadow: '0 8px 32px var(--accent-glow)',
-                transition: 'all 0.3s ease',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-4px)';
-                e.currentTarget.style.boxShadow = '0 12px 48px var(--accent-glow)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 8px 32px var(--accent-glow)';
+                marginBottom: 32,
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                boxShadow: '0 0 20px var(--accent-glow)',
               }}
             >
-              Start Browsing
-              <span style={{ fontSize: 24 }}>→</span>
-            </Link>
+              Elevating your setup ✂
+            </motion.div>
+
+            <motion.h1
+              variants={itemVariants}
+              style={{
+                fontFamily: "var(--font-space-grotesk), Inter, sans-serif",
+                fontWeight: 800,
+                fontSize: 'clamp(48px, 10vw, 96px)',
+                lineHeight: 0.9,
+                margin: '0 0 32px',
+                letterSpacing: '-0.05em',
+                background: 'linear-gradient(to bottom, #fff 40%, #666 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                textShadow: '0 0 30px rgba(255,255,255,0.2)'
+              }}
+            >
+              Future Goods.
+              <br />
+              <span style={{ color: 'var(--accent2)', WebkitTextFillColor: 'initial' }}>Stupid Low Prices.</span>
+            </motion.h1>
+
+            <motion.p
+              variants={itemVariants}
+              style={{
+                fontSize: 22,
+                lineHeight: 1.5,
+                color: 'var(--muted)',
+                maxWidth: 640,
+                margin: '0 auto 48px',
+                fontWeight: 400,
+              }}
+            >
+              NexDrop hunts down genuinely useful, slightly unexpected things —
+              and gets them to your door without the markup.
+            </motion.p>
+
+            <motion.div variants={itemVariants} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 40 }}>
+              <Link
+                href="/shop"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 12,
+                  background: 'var(--accent)',
+                  color: '#000',
+                  fontWeight: 800,
+                  fontSize: 18,
+                  padding: '20px 48px',
+                  borderRadius: 100,
+                  boxShadow: '0 8px 32px var(--accent-glow)',
+                  transition: 'all 0.3s ease',
+                }}
+              >
+                Start Browsing
+                <span style={{ fontSize: 24 }}>→</span>
+              </Link>
+
+              {/* QUICK CATEGORY SELECT */}
+              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
+                {categories.map(cat => (
+                  <Link
+                    key={cat.name}
+                    href={`/shop?category=${cat.name}`}
+                    style={{
+                      padding: '8px 20px',
+                      borderRadius: 100,
+                      background: 'rgba(255,255,255,0.05)',
+                      border: '1px solid var(--border)',
+                      color: 'var(--text)',
+                      fontSize: 14,
+                      fontWeight: 600,
+                      textDecoration: 'none',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = 'var(--accent2)';
+                      e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = 'var(--border)';
+                      e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                    }}
+                  >
+                    {cat.name}
+                  </Link>
+                ))}
+              </div>
+            </motion.div>
           </motion.div>
-        </motion.div>
+        </div>
       </section>
 
       {/* ---------- ROLLING PRODUCT SCREEN ---------- */}
@@ -229,14 +247,6 @@ export default function Home() {
                   flexShrink: 0,
                   overflow: 'hidden',
                   transition: 'all 0.3s ease',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'scale(1.05)';
-                  e.currentTarget.style.borderColor = 'var(--accent)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'scale(1)';
-                  e.currentTarget.style.borderColor = 'var(--border)';
                 }}
               >
                 <img
