@@ -67,8 +67,7 @@ export default function Home() {
   };
 
   return (
-    <div style={{ background: 'var(--bg)', color: 'var(--text)', minHeight: '100vh' }}>
-      <StorefrontHero3D />
+    <div style={{ background: 'transparent', color: 'var(--text)', minHeight: '100vh' }}>
       {/* ---------- HERO ---------- */}
       <section style={{
         position: 'relative',

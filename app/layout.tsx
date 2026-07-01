@@ -1,5 +1,6 @@
 // app/layout.tsx
 import Navbar from '@/components/Navbar';
+import StorefrontHero3D from '@/components/StorefrontHero3D';
 import './globals.css';
 
 export const metadata = {
@@ -27,8 +28,9 @@ export default function RootLayout({
         />
       </head>
       <body>
+        <StorefrontHero3D />
         <Navbar />
-        <main style={{ paddingTop: 72 }}>
+        <main style={{ paddingTop: 72, position: 'relative', zIndex: 1 }}>
           {children}
         </main>
       </body>
