@@ -1,17 +1,32 @@
 'use client';
 
 import { Canvas, useFrame, useLoader } from '@react-three/fiber';
-import { useRef, Suspense, useState, useEffect, useMemo } from 'react';
+import { useRef, Suspense, useState, useEffect, useMemo, Component } from 'react';
 import * as THREE from 'three';
 import { Float, PerspectiveCamera, Environment, ContactShadows, Html, Sparkles, Text } from '@react-three/drei';
 import { motion, AnimatePresence } from 'framer-motion';
+
+// Error boundary for individual spheres to prevent one failure from crashing the whole scene
+class TextureErrorBoundary extends Component<{ children: React.ReactNode }, { hasError: boolean }> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  render() {
+    if (this.state.hasError) return null;
+    return this.props.children;
+  }
+}
 
 function ProductSphere({ product, index }: { product: any; index: number }) {
   const meshRef = useRef<THREE.Mesh>(null!);
   const [hovered, setHovered] = useState(false);
 
-  // Try to load texture, fallback to color if it fails
-  const texture = useLoader(THREE.TextureLoader, product.image).catch(() => null);
+  // Try to load texture - if it fails, the ErrorBoundary will catch it
+  const texture = useLoader(THREE.TextureLoader, product.image) as THREE.Texture;
 
   const initialPos = useMemo(() => [
     (Math.random() - 0.5) * 80,
@@ -44,7 +59,7 @@ function ProductSphere({ product, index }: { product: any; index: number }) {
       >
         <sphereGeometry args={[1, 32, 32]} />
         <meshStandardMaterial
-          map={texture as any}
+          map={texture}
           color={texture ? '#fff' : '#00f2ff'}
           metalness={0.5}
           roughness={0.2}
@@ -90,9 +105,11 @@ function Scene() {
 
       <Sparkles count={200} scale={100} size={2} speed={0.2} color="#00f2ff" />
 
-      <Suspense fallback={null}>
+      <Suspense fallback={<Text position={[0, 0, 0]} fontSize={2} color="white">Loading 3D Experience...</Text>}>
         {displayProducts.map((p, i) => (
-          <ProductSphere key={p.id} product={p} index={i} />
+          <TextureErrorBoundary key={p.id}>
+            <ProductSphere product={p} index={i} />
+          </TextureErrorBoundary>
         ))}
       </Suspense>
 
