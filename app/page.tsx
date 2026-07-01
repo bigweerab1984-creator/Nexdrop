@@ -9,7 +9,7 @@ export default function Home() {
   const [products, setProducts] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch('/api/products')
+    fetch('/api/products?saleOnly=true')
       .then(res => res.json())
       .then(data => setProducts(data.products || []))
       .catch(() => {});
@@ -94,6 +94,15 @@ export default function Home() {
 
           <motion.h1
             variants={itemVariants}
+            animate={{
+              scale: [1, 1.05, 1],
+              rotate: [0, 1, -1, 0],
+            }}
+            transition={{
+              duration: 5,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
             style={{
               fontFamily: "var(--font-space-grotesk), Inter, sans-serif",
               fontWeight: 800,
@@ -104,6 +113,7 @@ export default function Home() {
               background: 'linear-gradient(to bottom, #fff 40%, #666 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
+              textShadow: '0 0 30px rgba(255,255,255,0.2)'
             }}
           >
             Future Goods.

@@ -8,8 +8,19 @@ export function middleware(request: NextRequest) {
   if (pathname.startsWith('/brain') || pathname.startsWith('/api/chat') || pathname.startsWith('/api/obsidian') || pathname.startsWith('/api/logs')) {
     const password = process.env.BRAIN_PASSWORD;
 
-    // If no password is set, allow access (for initial setup)
-    if (!password) return NextResponse.next();
+    // If no password is set, deny access by default for security
+    if (!password) {
+      if (!pathname.startsWith('/api/')) {
+        const url = request.nextUrl.clone();
+        url.pathname = '/login';
+        url.searchParams.set('error', 'Brain password not configured on server');
+        return NextResponse.redirect(url);
+      }
+      return new NextResponse(
+        JSON.stringify({ error: 'BRAIN_PASSWORD environment variable is not set.' }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
 
     const authHeader = request.headers.get('authorization');
     const cookiePassword = request.cookies.get('brain_password')?.value;

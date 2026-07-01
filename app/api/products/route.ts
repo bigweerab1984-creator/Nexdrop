@@ -10,6 +10,7 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const keyword = searchParams.get('q') ?? undefined;
   const page = Number(searchParams.get('page') ?? '1');
+  const saleOnly = searchParams.get('saleOnly') === 'true';
 
   try {
     // Load local products
@@ -29,6 +30,10 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    if (saleOnly) {
+      localProducts = localProducts.filter(p => p.onSale);
+    }
+
     const { products: cjProducts, total: cjTotal } = await searchProducts({ keyword, pageNum: page, pageSize: 48 });
 
     const mappedCj = cjProducts.map((p) => ({
@@ -37,7 +42,8 @@ export async function GET(req: NextRequest) {
       image: p.productImage,
       category: p.categoryName,
       price: applyMarkup(Number(p.sellPrice)),
-    }));
+      onSale: Number(p.sellPrice) < 20 // Mock sale logic for CJ
+    })).filter(p => !saleOnly || p.onSale);
 
     // Combine products (local first)
     const combined = [...localProducts, ...mappedCj];

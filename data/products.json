@@ -5,28 +5,32 @@
       "name": "Nebula Smart Watch",
       "image": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800",
       "category": "Electronics",
-      "price": 59.99
+      "price": 59.99,
+      "onSale": true
     },
     {
       "id": "local-2",
       "name": "Quantum Headphones",
       "image": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800",
       "category": "Electronics",
-      "price": 89.99
+      "price": 89.99,
+      "onSale": false
     },
     {
       "id": "local-3",
       "name": "Cyber Desk Lamp",
       "image": "https://images.unsplash.com/photo-1534073828943-f801091bb18c?w=800",
       "category": "Home",
-      "price": 45.00
+      "price": 45.00,
+      "onSale": true
     },
     {
       "id": "local-4",
       "name": "Aero Running Shoes",
       "image": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800",
       "category": "Sports",
-      "price": 120.00
+      "price": 120.00,
+      "onSale": false
     }
   ]
 }

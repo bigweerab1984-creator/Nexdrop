@@ -12,8 +12,14 @@ export async function executeTool(toolCall: any) {
     case 'run_shell_command':
       try {
         const { command } = toolCall;
+        // In shell tools, we must be extremely restrictive.
+        // For security, we block shell command execution unless explicitly enabled via environment.
+        if (process.env.ENABLE_SHELL_TOOLS !== 'true') {
+          return { error: 'Shell command execution is disabled by default. Enable via ENABLE_SHELL_TOOLS=true' };
+        }
+
         const whitelist = ['npm ', 'ls', 'pwd', 'git ', 'cat ', 'grep ', 'find ', 'node ', 'bun '];
-        const blacklist = ['rm ', 'sudo ', 'kill ', 'chmod ', 'chown ', 'apt ', 'shutdown', 'reboot', 'mv ', '..'];
+        const blacklist = ['rm ', 'sudo ', 'kill ', 'chmod ', 'chown ', 'apt ', 'shutdown', 'reboot', 'mv ', '..', ';', '&', '|', '>', '<', '`', '$'];
 
         const isWhitelisted = whitelist.some(w => command.trim().startsWith(w));
         const isBlacklisted = blacklist.some(b => command.toLowerCase().includes(b));
