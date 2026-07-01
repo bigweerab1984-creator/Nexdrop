@@ -27,7 +27,7 @@ export default function Home() {
     const cats = Array.from(new Set(allProducts.map(p => p.category)));
     return cats.map(cat => ({
       name: cat,
-      products: allProducts.filter(p => p.category === cat).slice(0, 4)
+      products: allProducts.filter(p => p.category === cat).slice(0, 12)
     }));
   }, [allProducts]);
 
@@ -311,16 +311,33 @@ export default function Home() {
                 </Link>
               </div>
 
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-                gap: 24
-              }}>
+              <div
+                className="no-scrollbar"
+                style={{
+                  display: 'flex',
+                  gap: 24,
+                  overflowX: 'auto',
+                  scrollSnapType: 'x mandatory',
+                  paddingBottom: 20,
+                  WebkitOverflowScrolling: 'touch',
+                }}
+              >
+                <style jsx>{`
+                  .no-scrollbar::-webkit-scrollbar {
+                    display: none;
+                  }
+                  .no-scrollbar {
+                    -ms-overflow-style: none;
+                    scrollbar-width: none;
+                  }
+                `}</style>
                 {cat.products.map((p: any) => (
                   <motion.div
                     key={p.id}
                     whileHover={{ y: -10 }}
                     style={{
+                      flex: '0 0 300px',
+                      scrollSnapAlign: 'start',
                       background: 'var(--surface)',
                       borderRadius: 24,
                       overflow: 'hidden',
